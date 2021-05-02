@@ -1,0 +1,14 @@
+{
+  "name": "thiefsgambit_node_api",
+  "version": "1.0.0",
+  "description": "Thiefs Gambit Node API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "captainlonate@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
