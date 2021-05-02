@@ -1,4 +1,6 @@
-# Thief's Gambit (WIP - Just started)
+# Thief's Gambit
+
+`(WIP - Just started - Not much to see yet)`
 
 ### Description
 
