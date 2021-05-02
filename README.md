@@ -1,12 +1,10 @@
-# Thief's Gambit
+# Thief's Gambit (WIP - Just started)
 
-## A free slots game
-
-## Description
+### Description
 
 A pirate themed slots game. Features a "Cheat" mechanic (as any pirate would do).
 
-## Images I made for the game (in blender)
+### Images I made for the game (in blender)
 
 ![Treasure Map](./graphics/blender/Treasure%20Map/Treasure%20Map%20Render.png)
 
