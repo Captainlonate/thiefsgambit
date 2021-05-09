@@ -1,6 +1,11 @@
 import { formatCommas } from '../utils'
 
 class GameState {
+  total: number;
+  bet: number;
+  lastWinnings: number;
+  canSpin: boolean;
+
   constructor () {
     this.total = 0
     this.bet = 0

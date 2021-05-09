@@ -1,6 +1,19 @@
 import * as PIXI from 'pixi.js'
 
+interface ReelContainerOptions {
+  x?: number,
+  y?: number,
+  displayWidth?: number,
+  displayHeight?: number,
+  bgColor?: number
+}
+
 class ReelContainer extends PIXI.Container {
+  displayWidth: number;
+  displayHeight: number;
+  bgSprite: PIXI.Sprite | null = null;
+  maskGraphic: PIXI.Graphics;
+
   constructor ({
     // x and y position
     x = 0,
@@ -9,17 +22,16 @@ class ReelContainer extends PIXI.Container {
     displayWidth = 0,
     displayHeight = 0,
     // Solid color of the background, or empty if no bg
-    bgColor = null
-  }) {
+    bgColor
+  }: ReelContainerOptions) {
     super()
     this.position.set(x, y)
     this.displayWidth = displayWidth
     this.displayHeight = displayHeight
-    this.bgColor = bgColor
 
     // Background Color
     if (bgColor) {
-      this.bgSprite = this.createBg()
+      this.bgSprite = this.createBg(bgColor)
       this.addChild(this.bgSprite)
     }
 
@@ -37,9 +49,9 @@ class ReelContainer extends PIXI.Container {
     return maskGraphic
   }
 
-  createBg () {
+  createBg (bgColor: number) {
     const bgSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
-    bgSprite.tint = this.bgColor
+    bgSprite.tint = bgColor
     bgSprite.width = this.displayWidth
     bgSprite.height = this.displayHeight
     return bgSprite

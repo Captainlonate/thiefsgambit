@@ -1,5 +1,5 @@
 import * as PIXI from 'pixi.js'
-import { getRandomPieceTexture, getTextureByServerKey } from '../Config/thingsToLoad'
+import { getTextureByServerKey } from '../Config/thingsToLoad'
 import SpinButton from '../GameComponents/SpinButton'
 import ReelContainer from '../GameComponents/ReelContainer'
 import Reel from '../GameComponents/Reel'
@@ -8,16 +8,78 @@ import NetworkManager from '../Network'
 import GameState from '../GameState'
 import { decFontSize } from '../utils'
 import { baseMoneyStyles } from '../Config/ui'
+import Logger from '../Logger'
+import {
+  XYCoord,
+  PIXIResource,
+  CurrentStateResults,
+  SpinResults,
+  slotsGrid
+} from '../types/types'
+
+interface GamePositions {
+  reelContainer: XYCoord,
+  spinButton: XYCoord,
+  pieceYCoords: number[],
+  totalTextCoords: XYCoord,
+  betTextCoords: XYCoord,
+  winningsTextCoords: XYCoord
+}
+
+interface GameSizes {
+  numReels: number,
+  numRows: number,
+  reelContainerWidth: number,
+  reelContainerHeight: number,
+  reelSpaceWidth: number,
+  totalReelSpaces: number,
+  reelWidth: number,
+  reelHeight: number,
+  pieceMargin: number,
+  pieceSize: number,
+  reelRowHeight: number,
+  spinButtonSize: number
+}
+
+interface MainSceneOptions {
+  pixiApp: PIXI.Application,
+  logger: Logger,
+  sizes: {
+    logicalWidth: number,
+    logicalHeight: number
+  }
+}
 
 /*
 
 */
 class MainScene {
-  constructor ({ pixiApp, loader, resources, sizes }) {
+  pixiApp: PIXI.Application;
+  loader: PIXI.Loader;
+  resources: PIXIResource;
+  network: NetworkManager;
+  gameState: GameState;
+  logicalWidth: number;
+  logicalHeight: number;
+  sizes: GameSizes;
+  positions: GamePositions;
+  container: PIXI.Container;
+  containerBG: PIXI.Sprite;
+  reelContainer: ReelContainer;
+  reels: Reel[];
+  spinButton: SpinButton;
+  totalUI: PIXI.Text;
+  betUI: PIXI.Text;
+  winningsUI: PIXI.Text;
+  spinning: boolean = false;
+  logger: Logger;
+
+  constructor ({ pixiApp, logger, sizes }: MainSceneOptions) {
     // PIXI Aliases
     this.pixiApp = pixiApp
-    this.loader = loader
-    this.resources = resources
+    this.loader = pixiApp.loader
+    this.resources = pixiApp.loader.resources
+    this.logger = logger
 
     this.network = new NetworkManager()
     this.gameState = new GameState()
@@ -26,7 +88,7 @@ class MainScene {
     const { logicalWidth, logicalHeight } = sizes
     this.logicalWidth = logicalWidth
     this.logicalHeight = logicalHeight
-    this.sizes = this.getSizes({ logicalWidth, logicalHeight })
+    this.sizes = this.getSizes({ logicalWidth })
     this.positions = this.getPositions()
 
     console.log(this.sizes)
@@ -70,7 +132,7 @@ class MainScene {
   initialize () {
     this.network
       .getCurrentState()
-      .then(({ bet, total }) => {
+      .then(({ bet, total }: CurrentStateResults) => {
         console.log('Got the initial state', { bet, total })
         this.gameState.total = total
         this.gameState.bet = bet
@@ -103,18 +165,17 @@ class MainScene {
       setTimeout(() => {
         this.network
           .requestSpin()
-          .then(({ newTotal, spinResults, spinValue }) => {
-            console.log('The Returned Network Data', { newTotal, spinResults, spinValue })
+          .then(({ newTotal, spinResults, spinValue }: SpinResults) => {
+            this.logger.debug('The Returned Network Data', { newTotal, spinResults, spinValue })
             this.gameState.total = newTotal
             this.gameState.lastWinnings = spinValue
             this.refreshUI()
             this.stopSpinning(spinResults)
           })
           .catch((err) => {
-            console.log('Network Error!!!', err)
+            this.logger.error('Network Error!!!', err)
           })
           .finally(() => {
-            console.log('Stopped Spinning')
             this.spinning = false
           })
       }, 2000)
@@ -144,7 +205,7 @@ class MainScene {
   /*
 
   */
-  stopSpinning (results) {
+  stopSpinning (results: slotsGrid) {
     this.spinning = false
 
     // Put the reels back in their original positions
@@ -157,7 +218,12 @@ class MainScene {
         if (pieceIdx >= pieces.length - 3) {
           const offsetIdx = pieceIdx - (pieces.length - 3)
           const serverKey = results[reelIdx][offsetIdx]
-          pieces[pieceIdx].texture = getTextureByServerKey({ resources: this.resources, serverKey })
+          const forcedTexture = getTextureByServerKey(this.resources, serverKey)
+          if (forcedTexture) {
+            pieces[pieceIdx].texture = forcedTexture
+          } else {
+            this.logger.error(`Could not identify texture for serverKey: "${serverKey}"`)
+          }
         }
       }
     }
@@ -166,7 +232,7 @@ class MainScene {
   /*
 
   */
-  createBgSprite (width, height, color = 0xffffff) {
+  createBgSprite (width: number, height: number, color: number = 0xffffff) {
     // const bgSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
     const bgSprite = new PIXI.Sprite(this.resources.scene.texture)
     bgSprite.width = width
@@ -209,7 +275,7 @@ class MainScene {
     for (const reel of this.reels) {
       for (const yCoord of this.positions.pieceYCoords) {
         const randomPiece = new Piece({
-          allTextures: this.resources,
+          resources: this.resources,
           x: this.sizes.pieceMargin,
           y: yCoord,
           size: this.sizes.pieceSize
@@ -269,7 +335,7 @@ class MainScene {
   /*
 
   */
-  getSizes ({ logicalWidth }) {
+  getSizes ({ logicalWidth }: { logicalWidth: number }) {
     const numReels = 5
     const numRows = 3
     const reelContainerWidth = Math.round(0.56 * logicalWidth)
@@ -305,18 +371,16 @@ class MainScene {
     Depends on this.sizes being calculated already
   */
   getPositions () {
-    const { reelContainerWidth, reelContainerHeight, spinButtonSize } = this.sizes
+    const { reelContainerWidth, reelContainerHeight } = this.sizes
 
-    // Exactly position the reel container to fit within the background image
-    const reelContainer = {}
-    reelContainer.x = Math.floor((this.logicalWidth - reelContainerWidth) / 2)
-    reelContainer.y = Math.floor((this.logicalHeight - reelContainerHeight) / 2) - 4
-    reelContainer.rightX = reelContainer.x + reelContainerWidth
-    reelContainer.botY = reelContainer.y + reelContainerHeight
+    const reelContainer = {
+      x: Math.floor((this.logicalWidth - reelContainerWidth) / 2),
+      y: Math.floor((this.logicalHeight - reelContainerHeight) / 2) - 4
+    }
 
     const spinButton = {
-      x: Math.floor(reelContainer.rightX - (spinButtonSize * 0.1)),
-      y: Math.floor(reelContainer.botY - (spinButtonSize * 0.65))
+      x: Math.floor(this.logicalWidth * 0.74),
+      y: Math.floor(this.logicalHeight * 0.45)
     }
 
     const pieceYCoords = [

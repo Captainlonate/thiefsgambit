@@ -3,6 +3,7 @@ import Loader from './Loader'
 import { ImagesToLoad } from './Config/thingsToLoad'
 import MainScene from './MainScene'
 import FontFaceObserver from 'fontfaceobserver'
+import Logger from './Logger'
 
 /*
 
@@ -20,7 +21,15 @@ import FontFaceObserver from 'fontfaceobserver'
     So I center the MainScene between the black space.
 */
 class App {
-  constructor ({ mountAt }) {
+  pixiApp: PIXI.Application;
+  logicalUnits: { width: number, height: number };
+  loader: Loader;
+  scene: MainScene | null = null;
+  logger: Logger
+
+  constructor (mountAt: HTMLElement) {
+    this.logger = new Logger()
+
     this.pixiApp = new PIXI.Application({
       resizeTo: window,
       antialias: true,
@@ -57,8 +66,7 @@ class App {
   setUpScene () {
     this.scene = new MainScene({
       pixiApp: this.pixiApp,
-      loader: this.pixiApp.loader,
-      resources: this.pixiApp.loader.resources,
+      logger: this.logger,
       sizes: {
         logicalWidth: this.logicalUnits.width,
         logicalHeight: this.logicalUnits.height
@@ -82,7 +90,10 @@ class App {
     I scale the logical size, by scaling the stage's container.
     The game's container (MainScene.container) uses the original logical sizes.
   */
-  handleWindowResize (windowWidth, windowHeight) {
+  handleWindowResize (windowWidth: number, windowHeight: number) {
+    if (!this.scene) {
+      return
+    }
     const screenAspect = windowWidth / windowHeight
     const logicalAspect = this.logicalUnits.width / this.logicalUnits.height
 
@@ -101,17 +112,6 @@ class App {
       this.scene.container.x = Math.floor(blackSpace / 2) / heightScaleFactor
       this.scene.container.y = 0
     }
-
-    // console.log('Main container', this.scene.container, this.scene.container.width)
-    // console.table({
-    //   widthScaleFactor,
-    //   windowWidth,
-    //   windowHeight,
-    //   stageWidth: this.pixiApp.stage.width,
-    //   stageHeight: this.pixiApp.stage.height,
-    //   canvasWidth: this.pixiApp.view.width,
-    //   canvasHeight: this.pixiApp.view.height
-    // })
   }
 }
 

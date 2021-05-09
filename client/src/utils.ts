@@ -2,7 +2,7 @@
   Format a number to have commas in the thousands place
   1234567 -> '1,234,567'
 */
-export const formatCommas = (num) => (
+export const formatCommas = (num: number | string) => (
   num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 )
 
@@ -12,7 +12,7 @@ export const formatCommas = (num) => (
   Example:
     decFontSize(32, 1, 3, 'abcdefg') = (32 - (1 * 4)) = 28
 */
-export const decFontSize = (base, decPerChar, minLength, str) => {
+export const decFontSize = (base: number, decPerChar: number, minLength: number, str: string) => {
   const length = str.length
   const charsOverMin = (length > minLength) ? (length - minLength) : 0
   return base - (decPerChar * charsOverMin)

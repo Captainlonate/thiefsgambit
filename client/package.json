@@ -22,7 +22,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "ts-standard": "ts-standard"
   },
   "eslintConfig": {
     "extends": [
@@ -41,5 +42,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "ts-standard": {
+    "project": "./tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/fontfaceobserver": "0.0.6",
+    "ts-standard": "^10.0.0"
   }
 }

@@ -4,8 +4,9 @@ import TreasureMapImg from '../images/treasure_map_1k.png'
 import HelmImg from '../images/helm_1k.png'
 import SceneImg from '../images/scene_3d.png'
 import PirateFont from '../fonts/pirate_font.ttf'
+import { LoadAddOption, StringObject, PIXIResource } from '../types/types'
 
-export const ImagesToLoad = [
+export const ImagesToLoad: LoadAddOption[] = [
   { name: 'compass', url: CompassImg },
   { name: 'anchor', url: AnchorImg },
   { name: 'treasureMap', url: TreasureMapImg },
@@ -14,10 +15,16 @@ export const ImagesToLoad = [
   { name: 'pirate_font', url: PirateFont }
 ]
 
+const serverKeyToAssetKey: StringObject = {
+  treasureMap: 'treasureMap',
+  compass: 'compass',
+  anchor: 'anchor'
+}
+
 /*
   returns a randomly select slot piece's name/key/label
 */
-export const getRandomPieceName = () => {
+export const getRandomPieceName = (): string => {
   const options = ['compass', 'anchor', 'treasureMap']
   return options[Math.floor(Math.random() * options.length)]
 }
@@ -26,7 +33,7 @@ export const getRandomPieceName = () => {
   Randomly selects one of the slot's pieces textures
     resources: a pixi.loader.resources object
 */
-export const getRandomPieceTexture = (resources) => {
+export const getRandomPieceTexture = (resources: PIXIResource) => {
   return resources[getRandomPieceName()].texture
 }
 
@@ -37,11 +44,7 @@ export const getRandomPieceTexture = (resources) => {
   serverKey: How the server refers to a specific piece image
     (May or may not be the same as the name I gave it above)
 */
-export const getTextureByServerKey = ({ resources, serverKey }) => {
-  const mapping = {
-    treasureMap: 'treasureMap',
-    compass: 'compass',
-    anchor: 'anchor'
-  }
-  return resources[mapping[serverKey]].texture
+export const getTextureByServerKey = (resources: PIXIResource, serverKey: string) => {
+  const assetKey = serverKeyToAssetKey[serverKey]
+  return assetKey ? resources[assetKey].texture : undefined
 }

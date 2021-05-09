@@ -1,19 +1,17 @@
+import { SpinResults, CurrentStateResults } from '../types/types'
+
 class NetworkManager {
-  constructor () {
-
-  }
-
-  requestSpin ({ bet } = {}) {
+  requestSpin (): Promise<SpinResults> {
     return this.mockSpinRequest()
   }
 
-  getCurrentState () {
+  getCurrentState (): Promise<CurrentStateResults> {
     return this.mockGetCurrentStateRequest()
   }
 
-  mockSpinRequest () {
-    return new Promise((resolve, reject) => {
-      resolve({
+  mockSpinRequest (): Promise<SpinResults> {
+    return new Promise((resolve) => {
+      const results: SpinResults = {
         spinResults: [
           ['treasureMap', 'anchor', 'compass'], // Reel 1
           ['treasureMap', 'anchor', 'compass'], // Reel 2
@@ -23,16 +21,18 @@ class NetworkManager {
         ],
         spinValue: 200,
         newTotal: Math.floor(Math.random() * 1000)
-      })
+      }
+      resolve(results)
     })
   }
 
-  mockGetCurrentStateRequest () {
-    return new Promise((resolve, reject) => {
-      resolve({
+  mockGetCurrentStateRequest (): Promise<CurrentStateResults> {
+    return new Promise((resolve) => {
+      const results: CurrentStateResults = {
         bet: 30,
         total: 1000
-      })
+      }
+      resolve(results)
     })
   }
 
