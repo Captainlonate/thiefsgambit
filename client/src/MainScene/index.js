@@ -1,0 +1,356 @@
+import * as PIXI from 'pixi.js'
+import { getRandomPieceTexture, getTextureByServerKey } from '../Config/thingsToLoad'
+import SpinButton from '../GameComponents/SpinButton'
+import ReelContainer from '../GameComponents/ReelContainer'
+import Reel from '../GameComponents/Reel'
+import Piece from '../GameComponents/Piece'
+import NetworkManager from '../Network'
+import GameState from '../GameState'
+import { decFontSize } from '../utils'
+import { baseMoneyStyles } from '../Config/ui'
+
+/*
+
+*/
+class MainScene {
+  constructor ({ pixiApp, loader, resources, sizes }) {
+    // PIXI Aliases
+    this.pixiApp = pixiApp
+    this.loader = loader
+    this.resources = resources
+
+    this.network = new NetworkManager()
+    this.gameState = new GameState()
+
+    // Sizes and Positions
+    const { logicalWidth, logicalHeight } = sizes
+    this.logicalWidth = logicalWidth
+    this.logicalHeight = logicalHeight
+    this.sizes = this.getSizes({ logicalWidth, logicalHeight })
+    this.positions = this.getPositions()
+
+    console.log(this.sizes)
+    console.log({
+      width: this.logicalWidth,
+      height: this.logicalHeight
+    })
+
+    // Contains the entire game
+    this.container = new PIXI.Container()
+    this.containerBG = this.createBgSprite(this.logicalWidth, this.logicalHeight)
+    this.container.addChild(this.containerBG)
+
+    // The container for the 5 reels
+    this.reelContainer = this.createReelContainer()
+    this.container.addChild(this.reelContainer)
+
+    // Create the reels
+    this.reels = this.createReels()
+    this.reelContainer.addChild(...this.reels)
+
+    //
+    this.createSlotPieces()
+
+    // Spin Button
+    this.spinButton = this.createSpinButton()
+    this.container.addChild(this.spinButton)
+
+    // UI Text
+    this.totalUI = this.createTotalText()
+    this.betUI = this.createBetText()
+    this.winningsUI = this.createWinningsText()
+    this.container.addChild(this.totalUI, this.betUI, this.winningsUI)
+
+    this.pixiApp.ticker.add(() => this.spinAnimation())
+
+    //
+    this.initialize()
+  }
+
+  initialize () {
+    this.network
+      .getCurrentState()
+      .then(({ bet, total }) => {
+        console.log('Got the initial state', { bet, total })
+        this.gameState.total = total
+        this.gameState.bet = bet
+        this.refreshUI()
+        this.start()
+      })
+      .catch((err) => {
+        console.log("Couldn't get initial state", err)
+      })
+  }
+
+  start () {
+    this.gameState.canSpin = true
+  }
+
+  refreshUI () {
+    const newTotalText = this.gameState.totalText
+    this.totalUI.text = newTotalText
+    this.totalUI.style.fontSize = decFontSize(baseMoneyStyles.fontSize, 4, 4, newTotalText)
+    this.betUI.text = 'Bet ' + this.gameState.betText
+    this.winningsUI.text = 'Win ' + this.gameState.lastWinnings
+  }
+
+  /*
+    Invoked when the player wants to spin
+  */
+  spin () {
+    if (this.gameState.canSpin && !this.spinning) {
+      this.spinning = true
+      setTimeout(() => {
+        this.network
+          .requestSpin()
+          .then(({ newTotal, spinResults, spinValue }) => {
+            console.log('The Returned Network Data', { newTotal, spinResults, spinValue })
+            this.gameState.total = newTotal
+            this.gameState.lastWinnings = spinValue
+            this.refreshUI()
+            this.stopSpinning(spinResults)
+          })
+          .catch((err) => {
+            console.log('Network Error!!!', err)
+          })
+          .finally(() => {
+            console.log('Stopped Spinning')
+            this.spinning = false
+          })
+      }, 2000)
+    }
+  }
+
+  /*
+    Makes each reel appear to spin (just the animation part)
+  */
+  spinAnimation () {
+    const speed = 10
+    if (this.spinning) {
+      const boundaryY = (this.reels[0].pieces.length - 2) * this.sizes.reelRowHeight
+      for (let reelIdx = 0; reelIdx < this.reels.length; reelIdx++) {
+        const pieces = this.reels[reelIdx].pieces
+        for (let pieceIdx = 0; pieceIdx < pieces.length; pieceIdx++) {
+          const piece = pieces[pieceIdx]
+          piece.y += speed
+          if (piece.y >= boundaryY) {
+            piece.y = -2 * this.sizes.reelRowHeight + this.sizes.pieceMargin
+          }
+        }
+      }
+    }
+  }
+
+  /*
+
+  */
+  stopSpinning (results) {
+    this.spinning = false
+
+    // Put the reels back in their original positions
+    // And update the images to be what the server decided
+    const { pieceYCoords } = this.positions
+    for (let reelIdx = 0; reelIdx < this.reels.length; reelIdx++) {
+      const pieces = this.reels[reelIdx].pieces
+      for (let pieceIdx = 0; pieceIdx < pieces.length; pieceIdx++) {
+        pieces[pieceIdx].y = pieceYCoords[pieceIdx]
+        if (pieceIdx >= pieces.length - 3) {
+          const offsetIdx = pieceIdx - (pieces.length - 3)
+          const serverKey = results[reelIdx][offsetIdx]
+          pieces[pieceIdx].texture = getTextureByServerKey({ resources: this.resources, serverKey })
+        }
+      }
+    }
+  }
+
+  /*
+
+  */
+  createBgSprite (width, height, color = 0xffffff) {
+    // const bgSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
+    const bgSprite = new PIXI.Sprite(this.resources.scene.texture)
+    bgSprite.width = width
+    bgSprite.height = height
+    // bgSprite.tint = color
+    return bgSprite
+  }
+
+  /*
+
+  */
+  createReelContainer () {
+    return new ReelContainer({
+      x: this.positions.reelContainer.x,
+      y: this.positions.reelContainer.y,
+      displayWidth: this.sizes.reelContainerWidth,
+      displayHeight: this.sizes.reelContainerHeight,
+      // bgColor: 0xff00ff
+    })
+  }
+
+  /*
+
+  */
+  createReels () {
+    const { reelSpaceWidth, reelWidth, numReels } = this.sizes
+
+    return Array
+      .from({ length: numReels }, (el, idx) => idx)
+      .map((idx) => new Reel({
+        x: (idx * reelWidth) + (idx * reelSpaceWidth),
+        y: 0
+      }))
+  }
+
+  /*
+
+  */
+  createSlotPieces () {
+    for (const reel of this.reels) {
+      for (const yCoord of this.positions.pieceYCoords) {
+        const randomPiece = new Piece({
+          allTextures: this.resources,
+          x: this.sizes.pieceMargin,
+          y: yCoord,
+          size: this.sizes.pieceSize
+        })
+
+        reel.addPiece(randomPiece)
+      }
+    }
+  }
+
+  /*
+
+  */
+  createSpinButton () {
+    return new SpinButton({
+      texture: this.resources.helm.texture,
+      size: this.sizes.spinButtonSize,
+      clickFn: () => this.spin(),
+      position: { ...this.positions.spinButton }
+    })
+  }
+
+  /*
+
+  */
+  createTotalText () {
+    const styles = { ...baseMoneyStyles }
+    const text = new PIXI.Text(this.gameState.totalText, styles)
+    text.x = this.positions.totalTextCoords.x
+    text.y = this.positions.totalTextCoords.y
+    text.position.x = this.positions.totalTextCoords.x
+    text.position.y = this.positions.totalTextCoords.y
+    text.angle = 8
+    text.anchor.set(0.5)
+
+    return text
+  }
+
+  createBetText () {
+    const styles = { ...baseMoneyStyles }
+    const text = new PIXI.Text(this.gameState.betText, styles)
+    text.x = this.positions.betTextCoords.x
+    text.y = this.positions.betTextCoords.y
+    text.anchor.set(0.5)
+    return text
+  }
+
+  createWinningsText () {
+    const styles = { ...baseMoneyStyles }
+    const text = new PIXI.Text(this.gameState.winningsText, styles)
+    text.x = this.positions.winningsTextCoords.x
+    text.y = this.positions.winningsTextCoords.y
+    text.anchor.set(0.5)
+    return text
+  }
+
+  /*
+
+  */
+  getSizes ({ logicalWidth }) {
+    const numReels = 5
+    const numRows = 3
+    const reelContainerWidth = Math.round(0.56 * logicalWidth)
+    const reelSpaceWidth = Math.floor(reelContainerWidth * 0.02)
+    // const reelSpaceWidth = 0
+    const totalReelSpaces = reelSpaceWidth * (numReels - 1)
+    const reelWidth = Math.floor((reelContainerWidth - totalReelSpaces) / numReels)
+    const pieceMargin = Math.floor(0.1 * reelWidth)
+    const pieceSize = Math.floor(reelWidth - (pieceMargin * 2))
+    const reelHeight = reelWidth * numRows
+    const reelContainerHeight = reelHeight
+    const reelRowHeight = reelWidth
+    const spinButtonSize = Math.floor(0.5 * reelContainerWidth)
+
+    return {
+      numReels,
+      numRows,
+      reelContainerWidth,
+      reelContainerHeight,
+      reelSpaceWidth,
+      totalReelSpaces,
+      reelWidth,
+      reelHeight,
+      pieceMargin,
+      pieceSize,
+      reelRowHeight,
+      spinButtonSize
+    }
+  }
+
+  /*
+
+    Depends on this.sizes being calculated already
+  */
+  getPositions () {
+    const { reelContainerWidth, reelContainerHeight, spinButtonSize } = this.sizes
+
+    // Exactly position the reel container to fit within the background image
+    const reelContainer = {}
+    reelContainer.x = Math.floor((this.logicalWidth - reelContainerWidth) / 2)
+    reelContainer.y = Math.floor((this.logicalHeight - reelContainerHeight) / 2) - 4
+    reelContainer.rightX = reelContainer.x + reelContainerWidth
+    reelContainer.botY = reelContainer.y + reelContainerHeight
+
+    const spinButton = {
+      x: Math.floor(reelContainer.rightX - (spinButtonSize * 0.1)),
+      y: Math.floor(reelContainer.botY - (spinButtonSize * 0.65))
+    }
+
+    const pieceYCoords = [
+      -2 * this.sizes.reelRowHeight + this.sizes.pieceMargin,
+      -1 * this.sizes.reelRowHeight + this.sizes.pieceMargin,
+      0 * this.sizes.reelRowHeight + this.sizes.pieceMargin,
+      1 * this.sizes.reelRowHeight + this.sizes.pieceMargin,
+      2 * this.sizes.reelRowHeight + this.sizes.pieceMargin
+    ]
+
+    const totalTextCoords = {
+      x: Math.floor(this.logicalWidth * 0.35),
+      y: Math.floor(this.logicalHeight * 0.93)
+    }
+
+    const betTextCoords = {
+      x: Math.floor(this.logicalWidth * 0.60),
+      y: Math.floor(this.logicalHeight * 0.92)
+    }
+
+    const winningsTextCoords = {
+      x: Math.floor(this.logicalWidth * 0.10),
+      y: Math.floor(this.logicalHeight * 0.82)
+    }
+
+    return {
+      reelContainer,
+      spinButton,
+      pieceYCoords,
+      totalTextCoords,
+      betTextCoords,
+      winningsTextCoords
+    }
+  }
+}
+
+export default MainScene

@@ -1,3 +1,8 @@
+@font-face {
+  font-family: pirate_font;
+  src: url(fonts/pirate_font.ttf);
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -10,4 +15,8 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+#root canvas {
+  display: block;
 }
