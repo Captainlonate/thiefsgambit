@@ -19,7 +19,9 @@ export type slotsGrid = string[][]
 export interface SpinResults {
   spinResults: slotsGrid,
   spinValue: number,
-  newTotal: number
+  newTotal: number,
+  paylines: number[][],
+  freeSpins: number
 }
 
 export interface CurrentStateResults {

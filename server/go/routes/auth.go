@@ -43,6 +43,11 @@ func ProtectRouteMiddleware(c *fiber.Ctx) error {
 
 	if ok && token.Valid {
 		fmt.Printf("\nAuth: Claims:\n\t%+v\n", claims)
+		c.Locals("userid", claims.Uuid)
+		c.Locals("firstname", claims.Firstname)
+		c.Locals("lastname", claims.Lastname)
+		c.Locals("email", claims.Email)
+		c.Locals("expiration", claims.Exp)
 	} else {
 		fmt.Println("Auth: Invalid JWT", err)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": "invalid_jwt"})

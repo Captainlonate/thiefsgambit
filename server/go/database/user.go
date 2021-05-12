@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"log"
 
 	ce "slotsserver/customError"
 )
@@ -26,7 +27,7 @@ func GetUserByEmail(emailAddress string) (*User, error) {
 
 	err := DBConn.Limit(1).Where("email = ?", emailAddress).Find(&existingUsers).Error
 	if err != nil {
-		fmt.Printf("GetUserByEmail::Could not query for\n'%s'\n%s\n", emailAddress, err)
+		log.Printf("GetUserByEmail::Could not query for\n'%s'\n%s\n", emailAddress, err)
 		return nil, err
 	}
 
@@ -48,7 +49,7 @@ func InsertNewUser(newUser *User) *ce.ApiError {
 	alreadyTaken, _ := IsEmailInUse(newUser.Email)
 
 	if alreadyTaken {
-		fmt.Printf("InsertNewUser::Could not insert new user. '%s' already exists\n", newUser.Email)
+		log.Printf("InsertNewUser::Could not insert new user. '%s' already exists\n", newUser.Email)
 		return &ce.ApiError{
 			Code:            ce.InsertUniqueErrorCode,
 			FriendlyMessage: "Email address already in use.",
@@ -58,7 +59,7 @@ func InsertNewUser(newUser *User) *ce.ApiError {
 
 	insertError := DBConn.Create(&newUser).Error
 	if insertError != nil {
-		fmt.Printf("InsertNewUser::Could not insert new user '%s'. Maybe constraint?\n", newUser.Email)
+		log.Printf("InsertNewUser::Could not insert new user '%s'. Maybe constraint?\n", newUser.Email)
 		return &ce.ApiError{
 			Code:            ce.InsertErrorCode,
 			FriendlyMessage: "Error when inserting new user.",

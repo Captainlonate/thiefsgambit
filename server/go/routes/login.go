@@ -50,9 +50,11 @@ func HandleLogin(c *fiber.Ctx) error {
 		return c.JSON(queryError)
 	}
 
+	fmt.Printf("User:\n\t%+v\n", dbUser)
+
 	// Create a signed JWT token
 	expiresTime := time.Now().Add(time.Hour * 24)
-	unsignedToken := CreateUnsignedToken(dbUser.Firstname, dbUser.Lastname, dbUser.Email, expiresTime.Unix())
+	unsignedToken := CreateUnsignedToken(dbUser.ID, dbUser.Firstname, dbUser.Lastname, dbUser.Email, expiresTime.Unix())
 	signedToken, signError := SignTokenOrError(unsignedToken)
 	if signError != nil {
 		ExpireJWTCookie(c)

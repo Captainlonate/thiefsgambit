@@ -39,30 +39,34 @@ class NetworkManager {
     return { authorized: false, data: undefined }
   }
 
-  requestSpin (): Promise<SpinResults> {
-    return this.realSpinRequest()
-    // return this.mockSpinRequest()
+  async requestSpin (): Promise<SpinResults> {
+    return new Promise((resolve, reject) => {
+      fetch(URL_SPIN, {
+        // Allows client to send the HttpOnly cookie
+        credentials: 'include',
+      })
+        .then((json) => json.json())
+        .then(({ success, error, data }) => {
+          console.log('/spin server response', { success, error, data })
+          if (success) {
+            const results: SpinResults = {
+              spinResults: data.reels,
+              spinValue: data.value,
+              newTotal: data.newtotal,
+              paylines: data.paylines,
+              freeSpins: data.freespins,
+            }
+            resolve(results)
+          } else {
+            console.error('Error from /spin response!', error)
+            reject(error)
+          }
+        })
+    })
   }
 
   getCurrentState (): Promise<CurrentStateResults> {
     return this.mockGetCurrentStateRequest()
-  }
-
-  mockSpinRequest (): Promise<SpinResults> {
-    return new Promise((resolve) => {
-      const results: SpinResults = {
-        spinResults: [
-          ['treasureMap', 'anchor', 'compass'], // Reel 1
-          ['treasureMap', 'anchor', 'compass'], // Reel 2
-          ['treasureMap', 'anchor', 'compass'], // Reel 3
-          ['treasureMap', 'anchor', 'compass'], // Reel 4
-          ['treasureMap', 'anchor', 'compass'] // Reel 5
-        ],
-        spinValue: 200,
-        newTotal: Math.floor(Math.random() * 1000)
-      }
-      resolve(results)
-    })
   }
 
   mockGetCurrentStateRequest (): Promise<CurrentStateResults> {
@@ -72,30 +76,6 @@ class NetworkManager {
         total: 1000
       }
       resolve(results)
-    })
-  }
-
-  realSpinRequest (): Promise<SpinResults> {
-    return new Promise((resolve, reject) => {
-      fetch(URL_SPIN, {
-        // Allows client to send the HttpOnly cookie
-        credentials: 'include',
-      })
-        .then((json) => json.json())
-        .then(({ success, error, data }) => {
-          console.log('/spin server response', success, error, data)
-          if (success) {
-            const results: SpinResults = {
-              spinResults: data.Reels,
-              spinValue: data.Value,
-              newTotal: data.NewTotal
-            }
-            resolve(results)
-          } else {
-            console.error('Error from /spin response!', error)
-            reject(error)
-          }
-        })
     })
   }
 }

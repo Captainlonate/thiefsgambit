@@ -56,5 +56,5 @@ func SetUpRoutes(app *fiber.App) {
 	app.Post("/login", routes.HandleLogin)
 	app.Post("/logout", routes.HandleLogout)
 	app.Post("/signup", routes.HandleSignup)
-	app.Get("/spin", routes.ProtectRouteMiddleware, routes.HandleSpin)
+	app.Post("/spin", routes.ProtectRouteMiddleware, routes.HandleSpin)
 }

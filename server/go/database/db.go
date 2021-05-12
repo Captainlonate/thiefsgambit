@@ -29,15 +29,5 @@ func ConnectToDB() {
 		log.Fatalln("Could not connect to the database.")
 	}
 	log.Println("Connected to database")
-	InitDB()
-}
-
-/*
-	Can use the AutoMigrate:
-		DBConn.AutoMigrate(&User{})
-	Can use the Migrator interface:
-		fmt.Println(DBConn.Migrator().CurrentDatabase())
-*/
-func InitDB() {
 	DBConn.AutoMigrate(&User{}, &SlotsData{})
 }

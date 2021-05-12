@@ -16,6 +16,8 @@ const BadJWTErrorCode ErrorCode = "bad_token"
 const EmailInUseErrorCode ErrorCode = "email_in_use"
 const WrongEmailErrorCode ErrorCode = "wrong_email"
 const WrongPasswordErrorCode ErrorCode = "wrong_password"
+const InvalidBetAmountErrorCode ErrorCode = "invalid_bet_amount"
+const NoUserIdInTokenErrorCode ErrorCode = "no_id_in_token"
 
 type ApiError struct {
 	Code            ErrorCode `json:"error_code"`

@@ -1,6 +1,12 @@
 package gamelogic
 
+import "math/rand"
+
 type Piece string
+
+type Reel [3]Piece
+
+type Board [5]Reel
 
 const (
 	TYPE_COMPASS Piece = "compass"
@@ -14,6 +20,8 @@ var AllPieces = []Piece{
 	TYPE_MAP,
 }
 
-type Reel [3]Piece
-
-type Board [5]Reel
+func GetRandomPiece() Piece {
+	randomIndex := rand.Intn(len(AllPieces))
+	randomItem := AllPieces[randomIndex]
+	return randomItem
+}

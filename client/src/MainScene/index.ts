@@ -161,7 +161,7 @@ class MainScene {
   */
   spin () {
     if (this.gameState.canSpin && !this.spinning) {
-      this.network.login() // TODO: Remove
+      // this.network.login() // TODO: Remove
       this.spinning = true
       setTimeout(() => {
         this.network
