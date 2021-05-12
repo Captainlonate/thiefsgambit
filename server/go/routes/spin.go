@@ -27,9 +27,12 @@ type SpinResults struct {
 	FreeSpins int `json:"freespins"`
 }
 
-var validBetAmounts = map[int]bool{30: true, 60: true, 90: true}
+var validBetAmounts = map[int]bool{1: true, 2: true, 3: true}
 
 func HandleSpin(c *fiber.Ctx) error {
+	// DON'T LET THEM SPIN WHILE SPINNING... SOMEHOW
+	// DON'T LET THEM MASH THE SPIN BUTTON
+
 	// Parse the user's bet amount
 	spinInput := new(SpinInputModel)
 	if err := ParsePostBodyOrError(c, &spinInput); err != nil {
@@ -81,12 +84,36 @@ func HandleSpin(c *fiber.Ctx) error {
 	log.Printf("HandleSpin::Got SlotsData:\n\t%+v\n\n", slotsData)
 
 	// Did the user have enough money to make this spin
+	spinCost := spinInput.Bet * len(logic.PayLines)
+	hasFreeSpin := false // TODO: Need to get this from db
+
+	// Check for insufficient funds
+	if !hasFreeSpin && spinCost > slotsData.Coins {
+		log.Printf("HandleSpin::Not enough coins (%v) to spin (%v)\n\n", slotsData.Coins, spinCost)
+		return c.JSON(MakeFailure(
+			ce.InsufficientCoinsErrorCode,
+			"Insufficient coins.",
+		))
+	}
+
+	newTotal := slotsData.Coins
+	newTotalFreeSpins := slotsData.FreeSpins
+	if hasFreeSpin {
+		newTotalFreeSpins = slotsData.FreeSpins - 1
+	} else {
+		newTotal = slotsData.Coins - spinCost
+	}
 
 	// Create a new board and evaluate it
 	board := logic.GetRandomBoard()
 	boardEvaluation := logic.EvaluateBoard(board)
 
 	// Update the user's new total
+	newTotal += boardEvaluation.Value
+
+	// Save this SlotsData back to the database
+	// (with new total, new free spins)
+	// updatedSlotsData, err := db.UpdateSlotsData()
 
 	return c.JSON(ApiResponse{
 		Success: true,
@@ -94,9 +121,9 @@ func HandleSpin(c *fiber.Ctx) error {
 		Data: SpinResults{
 			Reels:     boardEvaluation.Reels,
 			Value:     boardEvaluation.Value,
-			NewTotal:  2400,
+			NewTotal:  newTotal,
 			PayLines:  boardEvaluation.PayLines,
-			FreeSpins: 0,
+			FreeSpins: newTotalFreeSpins,
 		},
 	})
 }

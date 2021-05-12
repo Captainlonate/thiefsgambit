@@ -14,6 +14,7 @@ type User struct {
 
 type SlotsData struct {
 	gorm.Model
-	UserID uint
-	Coins  uint64 `json:"coins"`
+	UserID    uint
+	Coins     int `json:"coins"`
+	FreeSpins int `json:"freespins"`
 }

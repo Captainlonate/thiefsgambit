@@ -18,6 +18,7 @@ const WrongEmailErrorCode ErrorCode = "wrong_email"
 const WrongPasswordErrorCode ErrorCode = "wrong_password"
 const InvalidBetAmountErrorCode ErrorCode = "invalid_bet_amount"
 const NoUserIdInTokenErrorCode ErrorCode = "no_id_in_token"
+const InsufficientCoinsErrorCode ErrorCode = "insufficient_coins"
 
 type ApiError struct {
 	Code            ErrorCode `json:"error_code"`
