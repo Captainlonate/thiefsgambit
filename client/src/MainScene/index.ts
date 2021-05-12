@@ -91,8 +91,8 @@ class MainScene {
     this.sizes = this.getSizes({ logicalWidth })
     this.positions = this.getPositions()
 
-    console.log(this.sizes)
-    console.log({
+    this.logger.debug(this.sizes)
+    this.logger.debug({
       width: this.logicalWidth,
       height: this.logicalHeight
     })
@@ -133,14 +133,14 @@ class MainScene {
     this.network
       .getCurrentState()
       .then(({ bet, total }: CurrentStateResults) => {
-        console.log('Got the initial state', { bet, total })
+        this.logger.debug('Got the initial state', { bet, total })
         this.gameState.total = total
         this.gameState.bet = bet
         this.refreshUI()
         this.start()
       })
       .catch((err) => {
-        console.log("Couldn't get initial state", err)
+        this.logger.error("Couldn't get initial state", err)
       })
   }
 
@@ -161,6 +161,7 @@ class MainScene {
   */
   spin () {
     if (this.gameState.canSpin && !this.spinning) {
+      this.network.login() // TODO: Remove
       this.spinning = true
       setTimeout(() => {
         this.network

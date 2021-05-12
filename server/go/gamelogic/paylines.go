@@ -1,4 +1,4 @@
-package server
+package gamelogic
 
 type PayLine [5]int
 

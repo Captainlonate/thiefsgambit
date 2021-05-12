@@ -15,8 +15,13 @@ export const ImagesToLoad: LoadAddOption[] = [
   { name: 'pirate_font', url: PirateFont }
 ]
 
+/*
+  Translates the terms that the server uses to refer
+  to each slot piece type, to the terms used within
+  this client application
+*/
 const serverKeyToAssetKey: StringObject = {
-  treasureMap: 'treasureMap',
+  map: 'treasureMap',
   compass: 'compass',
   anchor: 'anchor'
 }

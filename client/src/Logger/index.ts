@@ -1,9 +1,9 @@
 class Logger {
   debug (...msg: any) {
-    console.log(msg)
+    console.log(...msg)
   }
   error (...msg: any) {
-    console.error(msg)
+    console.error(...msg)
   }
 }
 

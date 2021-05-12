@@ -1,8 +1,16 @@
-package server
+package gamelogic
 
 import (
 	"math/rand"
 )
+
+type SpinResultResponse struct {
+	Reels     Board
+	Value     int
+	NewTotal  int
+	PayLines  []PayLine
+	FreeSpins int
+}
 
 func GetRandomPiece() Piece {
 	randomIndex := rand.Intn(len(AllPieces))

@@ -1,4 +1,4 @@
-package server
+package gamelogic
 
 type WinType string
 
