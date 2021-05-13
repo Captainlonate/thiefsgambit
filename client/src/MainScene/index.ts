@@ -165,7 +165,7 @@ class MainScene {
       this.spinning = true
       setTimeout(() => {
         this.network
-          .requestSpin()
+          .requestSpin(1)
           .then(({ newTotal, spinResults, spinValue }: SpinResults) => {
             this.logger.debug('The Returned Network Data', { newTotal, spinResults, spinValue })
             this.gameState.total = newTotal

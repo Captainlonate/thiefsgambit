@@ -78,7 +78,8 @@ func HandleSignup(c *fiber.Ctx) error {
 		Email:          signupCredentials.Email,
 		HashedPassword: db.HashAndSaltPassword(signupCredentials.Password),
 		SlotsData: db.SlotsData{
-			Coins: 2400,
+			FreeSpins: 0,
+			Coins:     2400,
 		},
 	}
 

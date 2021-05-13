@@ -5,7 +5,6 @@ type BoardEvaluation struct {
 	Reels Board `json:"reels"`
 	// The total value of this board's win conditions
 	Value int `json:"value"`
-	// NewTotal  int
 	// The paylines that contain win conditions
 	PayLines []PayLine `json:"paylines"`
 	// Did this board award Free Spins
@@ -70,9 +69,9 @@ func EvaluateBoard(board Board) BoardEvaluation {
 	}
 
 	return BoardEvaluation{
-		Reels: board,
-		Value: SumWinsValue(wins),
-		// NewTotal: 12500,
-		PayLines: ExtractPaylinesFromWins(wins),
+		Reels:     board,
+		Value:     SumWinsValue(wins),
+		PayLines:  ExtractPaylinesFromWins(wins),
+		FreeSpins: ContainsFreeSpins(wins),
 	}
 }

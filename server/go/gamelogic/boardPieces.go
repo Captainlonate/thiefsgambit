@@ -1,6 +1,8 @@
 package gamelogic
 
-import "math/rand"
+import (
+	"math/rand"
+)
 
 type Piece string
 
@@ -12,12 +14,14 @@ const (
 	TYPE_COMPASS Piece = "compass"
 	TYPE_ANCHOR  Piece = "anchor"
 	TYPE_MAP     Piece = "map"
+	TYPE_FRAME   Piece = "frame"
 )
 
 var AllPieces = []Piece{
 	TYPE_COMPASS,
 	TYPE_ANCHOR,
 	TYPE_MAP,
+	TYPE_FRAME,
 }
 
 func GetRandomPiece() Piece {

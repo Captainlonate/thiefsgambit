@@ -42,11 +42,8 @@ func HandleSpin(c *fiber.Ctx) error {
 	log.Printf("HandleSpin:: SpinInputModel:\n\t%+v\n\n", spinInput)
 
 	// Validate possible Bet amounts
-	if !validBetAmounts[spinInput.Bet] {
-		return c.JSON(MakeFailure(
-			ce.InvalidBetAmountErrorCode,
-			fmt.Sprintf("%v is an invalid bet amount", spinInput.Bet),
-		))
+	if betErr := ValidateBetAmount(spinInput.Bet); betErr != nil {
+		return c.JSON(betErr)
 	}
 
 	// If c.Locals("thing") is nil, the type assertion
@@ -81,14 +78,15 @@ func HandleSpin(c *fiber.Ctx) error {
 		))
 	}
 
-	log.Printf("HandleSpin::Got SlotsData:\n\t%+v\n\n", slotsData)
+	log.Printf("HandleSpin::Got SlotsData from DB:\n\t%+v\n\n", slotsData)
 
 	// Did the user have enough money to make this spin
 	spinCost := spinInput.Bet * len(logic.PayLines)
-	hasFreeSpin := false // TODO: Need to get this from db
+	hasFreeSpins := slotsData.FreeSpins > 0
+	hasEnoughToSpin := slotsData.Coins >= spinCost
 
 	// Check for insufficient funds
-	if !hasFreeSpin && spinCost > slotsData.Coins {
+	if !hasFreeSpins && !hasEnoughToSpin {
 		log.Printf("HandleSpin::Not enough coins (%v) to spin (%v)\n\n", slotsData.Coins, spinCost)
 		return c.JSON(MakeFailure(
 			ce.InsufficientCoinsErrorCode,
@@ -96,12 +94,11 @@ func HandleSpin(c *fiber.Ctx) error {
 		))
 	}
 
-	newTotal := slotsData.Coins
-	newTotalFreeSpins := slotsData.FreeSpins
-	if hasFreeSpin {
-		newTotalFreeSpins = slotsData.FreeSpins - 1
+	// Subtract the cost of the spin (unless it's free)
+	if hasFreeSpins {
+		slotsData.FreeSpins = slotsData.FreeSpins - 1
 	} else {
-		newTotal = slotsData.Coins - spinCost
+		slotsData.Coins = slotsData.Coins - spinCost
 	}
 
 	// Create a new board and evaluate it
@@ -109,21 +106,44 @@ func HandleSpin(c *fiber.Ctx) error {
 	boardEvaluation := logic.EvaluateBoard(board)
 
 	// Update the user's new total
-	newTotal += boardEvaluation.Value
+	wageredWinnings := spinInput.Bet * boardEvaluation.Value
+	slotsData.Coins += wageredWinnings
+
+	//
+	if boardEvaluation.FreeSpins {
+		slotsData.FreeSpins += 15
+	}
 
 	// Save this SlotsData back to the database
 	// (with new total, new free spins)
-	// updatedSlotsData, err := db.UpdateSlotsData()
+	if updateErr := db.UpdateSlotsData(slotsData); updateErr != nil {
+		log.Printf("Failed to update user's (%v) SlotsData.\n", userId)
+		return c.JSON(MakeFailure(
+			ce.InternalServerErrorCode,
+			"Internal Server Error. Unable to update User's SlotsData.",
+		))
+	}
 
 	return c.JSON(ApiResponse{
 		Success: true,
 		Error:   nil,
 		Data: SpinResults{
 			Reels:     boardEvaluation.Reels,
-			Value:     boardEvaluation.Value,
-			NewTotal:  newTotal,
+			Value:     wageredWinnings,
+			NewTotal:  slotsData.Coins,
 			PayLines:  boardEvaluation.PayLines,
-			FreeSpins: newTotalFreeSpins,
+			FreeSpins: slotsData.FreeSpins,
 		},
 	})
+}
+
+func ValidateBetAmount(bet int) *ApiResponse {
+	if !validBetAmounts[bet] {
+		err := MakeFailure(
+			ce.InvalidBetAmountErrorCode,
+			fmt.Sprintf("%v is an invalid bet amount", bet),
+		)
+		return &err
+	}
+	return nil
 }

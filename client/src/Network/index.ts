@@ -8,7 +8,7 @@ class NetworkManager {
   async login () {
     // const results = await this.requestSignUp('kathy@email.com', 'Slotsg@me', 'Kathy', 'Erwine')
     // console.log('r', results)
-    const results = await this.requestLogin('kathy@email.com', 'Slotsg@me')
+    const results = await this.requestLogin('test@email.com', 'P@ssword')
     console.log('r', results)
   }
 
@@ -39,11 +39,14 @@ class NetworkManager {
     return { authorized: false, data: undefined }
   }
 
-  async requestSpin (): Promise<SpinResults> {
+  async requestSpin (bet: number): Promise<SpinResults> {
     return new Promise((resolve, reject) => {
       fetch(URL_SPIN, {
         // Allows client to send the HttpOnly cookie
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        body: JSON.stringify({ bet })
       })
         .then((json) => json.json())
         .then(({ success, error, data }) => {

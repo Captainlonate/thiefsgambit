@@ -3,6 +3,8 @@ import AnchorImg from '../images/anchor_1k.png'
 import TreasureMapImg from '../images/treasure_map_1k.png'
 import HelmImg from '../images/helm_1k.png'
 import SceneImg from '../images/scene_3d.png'
+// import FrameImg from '../images/frame.png'
+import FrameImg from '../images/picture_frame_3d.png'
 import PirateFont from '../fonts/pirate_font.ttf'
 import { LoadAddOption, StringObject, PIXIResource } from '../types/types'
 
@@ -12,7 +14,8 @@ export const ImagesToLoad: LoadAddOption[] = [
   { name: 'treasureMap', url: TreasureMapImg },
   { name: 'helm', url: HelmImg },
   { name: 'scene', url: SceneImg },
-  { name: 'pirate_font', url: PirateFont }
+  { name: 'frame', url: FrameImg },
+  { name: 'pirate_font', url: PirateFont },
 ]
 
 /*
@@ -23,14 +26,15 @@ export const ImagesToLoad: LoadAddOption[] = [
 const serverKeyToAssetKey: StringObject = {
   map: 'treasureMap',
   compass: 'compass',
-  anchor: 'anchor'
+  anchor: 'anchor',
+  frame: 'frame'
 }
 
 /*
   returns a randomly select slot piece's name/key/label
 */
 export const getRandomPieceName = (): string => {
-  const options = ['compass', 'anchor', 'treasureMap']
+  const options = ['compass', 'anchor', 'treasureMap', 'frame']
   return options[Math.floor(Math.random() * options.length)]
 }
 

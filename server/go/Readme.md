@@ -16,4 +16,4 @@
   - Option 1) Need Friendship Table
     - User 1 uint, User 2 uint
   - Option 2) User can only have 2 friends, and are attached to User table
-  
+- All credentials should be case insensitive

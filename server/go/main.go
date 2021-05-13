@@ -2,8 +2,10 @@ package main
 
 import (
 	"log"
+	"math/rand"
 	db "slotsserver/database"
 	"slotsserver/routes"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -41,6 +43,7 @@ func StartFiber() {
 	Creates a new Fiber instance (with configuration)
 */
 func SetUpFiber() (app *fiber.App) {
+	rand.Seed(time.Now().UnixNano())
 	app = fiber.New()
 	app.Use(cors.New(cors.Config{
 		AllowCredentials: true,
