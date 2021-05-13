@@ -29,95 +29,49 @@ type SpinResults struct {
 
 var validBetAmounts = map[int]bool{1: true, 2: true, 3: true}
 
+/*
+	Fiber route handler for when a user requests to spin.
+*/
 func HandleSpin(c *fiber.Ctx) error {
-	// DON'T LET THEM SPIN WHILE SPINNING... SOMEHOW
-	// DON'T LET THEM MASH THE SPIN BUTTON
+	// TODO: DON'T LET THEM SPIN WHILE SPINNING... SOMEHOW
+	var apiResponse *ApiResponse
 
-	// Parse the user's bet amount
-	spinInput := new(SpinInputModel)
-	if err := ParsePostBodyOrError(c, &spinInput); err != nil {
-		return c.JSON(err)
+	// Determine how much the user wants to bet
+	desiredBet, apiResponse := spinGetDesiredBet(c)
+	if apiResponse != nil {
+		return c.JSON(apiResponse)
 	}
 
-	log.Printf("HandleSpin:: SpinInputModel:\n\t%+v\n\n", spinInput)
-
-	// Validate possible Bet amounts
-	if betErr := ValidateBetAmount(spinInput.Bet); betErr != nil {
-		return c.JSON(betErr)
+	// Get the user's current slots data from the database
+	slotsData, apiResponse := spinGetUserSlotsData(c)
+	if apiResponse != nil {
+		return c.JSON(apiResponse)
 	}
 
-	// If c.Locals("thing") is nil, the type assertion
-	// will return: 0, false
-	userId, ok := c.Locals("userid").(uint)
-	if !ok {
-		log.Printf("HandleSpin::Could not get userid from token: %v\n\n", c.Locals("userid"))
-		return c.JSON(MakeFailure(
-			ce.NoUserIdInTokenErrorCode,
-			"Could not find uuid in token.",
-		))
+	// What will this spin cost the user, and do they have enough
+	spinCost := desiredBet * len(logic.PayLines)
+	apiResponse = spinCheckEnoughToBet(slotsData, spinCost)
+	if apiResponse != nil {
+		return c.JSON(apiResponse)
 	}
 
-	// Get the user's slots data
-	slotsData, queryErr := db.GetUserSlotsData(userId)
+	// Subtract the cost of the spin, unless they have a free spin
+	spinApplySpinCost(slotsData, spinCost)
 
-	// If the query for SlotsData errored (missing column?)
-	if queryErr != nil {
-		log.Printf("HandleSpin::Could not query user's SlotsData:\n\t%v\n\n", queryErr)
-		return c.JSON(MakeFailure(
-			ce.InternalServerErrorCode,
-			"Could not get User's slots data.",
-		))
-	}
-
-	// No SlotsData for user id
-	if slotsData == nil {
-		log.Printf("HandleSpin::There is no SlotsData for user id: %v\n\n", userId)
-		return c.JSON(MakeFailure(
-			ce.InternalServerErrorCode,
-			"No SlotsData for this user.",
-		))
-	}
-
-	log.Printf("HandleSpin::Got SlotsData from DB:\n\t%+v\n\n", slotsData)
-
-	// Did the user have enough money to make this spin
-	spinCost := spinInput.Bet * len(logic.PayLines)
-	hasFreeSpins := slotsData.FreeSpins > 0
-	hasEnoughToSpin := slotsData.Coins >= spinCost
-
-	// Check for insufficient funds
-	if !hasFreeSpins && !hasEnoughToSpin {
-		log.Printf("HandleSpin::Not enough coins (%v) to spin (%v)\n\n", slotsData.Coins, spinCost)
-		return c.JSON(MakeFailure(
-			ce.InsufficientCoinsErrorCode,
-			"Insufficient coins.",
-		))
-	}
-
-	// Subtract the cost of the spin (unless it's free)
-	if hasFreeSpins {
-		slotsData.FreeSpins = slotsData.FreeSpins - 1
-	} else {
-		slotsData.Coins = slotsData.Coins - spinCost
-	}
-
-	// Create a new board and evaluate it
+	// Spin! Create a new board and evaluate it
 	board := logic.GetRandomBoard()
 	boardEvaluation := logic.EvaluateBoard(board)
 
-	// Update the user's new total
-	wageredWinnings := spinInput.Bet * boardEvaluation.Value
-	slotsData.Coins += wageredWinnings
-
-	//
+	// Update the user's new total and free spins count
+	howMuchTheyWon := desiredBet * boardEvaluation.Value
+	slotsData.Coins += howMuchTheyWon
 	if boardEvaluation.FreeSpins {
 		slotsData.FreeSpins += 15
 	}
 
-	// Save this SlotsData back to the database
-	// (with new total, new free spins)
-	if updateErr := db.UpdateSlotsData(slotsData); updateErr != nil {
-		log.Printf("Failed to update user's (%v) SlotsData.\n", userId)
+	// Save/Commit this SlotsData back to the database
+	if updateErr := db.SaveSlotsData(slotsData); updateErr != nil {
+		log.Printf("Failed to update user's (%v) SlotsData.\n", slotsData.UserID)
 		return c.JSON(MakeFailure(
 			ce.InternalServerErrorCode,
 			"Internal Server Error. Unable to update User's SlotsData.",
@@ -129,7 +83,7 @@ func HandleSpin(c *fiber.Ctx) error {
 		Error:   nil,
 		Data: SpinResults{
 			Reels:     boardEvaluation.Reels,
-			Value:     wageredWinnings,
+			Value:     howMuchTheyWon,
 			NewTotal:  slotsData.Coins,
 			PayLines:  boardEvaluation.PayLines,
 			FreeSpins: slotsData.FreeSpins,
@@ -137,7 +91,10 @@ func HandleSpin(c *fiber.Ctx) error {
 	})
 }
 
-func ValidateBetAmount(bet int) *ApiResponse {
+/*
+
+ */
+func spinValidateBetAmount(bet int) *ApiResponse {
 	if !validBetAmounts[bet] {
 		err := MakeFailure(
 			ce.InvalidBetAmountErrorCode,
@@ -146,4 +103,102 @@ func ValidateBetAmount(bet int) *ApiResponse {
 		return &err
 	}
 	return nil
+}
+
+/*
+
+ */
+func spinGetDesiredBet(c *fiber.Ctx) (int, *ApiResponse) {
+	// Parse the user's desired bet amount
+	spinInput := new(SpinInputModel)
+	if apiResponse := ParsePostBodyOrError(c, &spinInput); apiResponse != nil {
+		return 0, apiResponse
+	}
+
+	log.Printf("HandleSpin:: SpinInputModel:\n\t%+v\n\n", spinInput)
+
+	// Are they trying to bet an unsupported amount
+	if apiResponse := spinValidateBetAmount(spinInput.Bet); apiResponse != nil {
+		return 0, apiResponse
+	}
+
+	return spinInput.Bet, nil
+}
+
+/*
+	Retrieve the user's slots data from the database.
+	Determine's which user to look up, by looking for a "userid" in
+	fiber's Context.Locals.
+	If everything goes well, returns their slots data.
+	Otherwise, an ApiResponse will be returned if:
+		- There was no userid in locals.
+		- The query could not find SlotsData for that userId
+		- The query simply fails for some other reason
+*/
+func spinGetUserSlotsData(c *fiber.Ctx) (*db.SlotsData, *ApiResponse) {
+	var apiResponse ApiResponse
+	// If c.Locals("thing") is nil, the type assertion will return: 0, false
+	userId, ok := c.Locals("userid").(uint)
+	if !ok {
+		log.Printf("HandleSpin::Could not get userid from token: %v\n\n", c.Locals("userid"))
+		apiResponse = MakeFailure(
+			ce.NoUserIdInTokenErrorCode,
+			"Could not find uuid in token.",
+		)
+		return nil, &apiResponse
+	}
+
+	// Get the user's slots data from the database
+	slotsData, queryErr := db.GetUserSlotsData(userId)
+
+	// If the query for SlotsData errored (missing column?)
+	if queryErr != nil {
+		log.Printf("HandleSpin::Could not query user's SlotsData:\n\t%v\n\n", queryErr)
+		apiResponse = MakeFailure(
+			ce.InternalServerErrorCode,
+			"Could not get User's slots data.",
+		)
+		return nil, &apiResponse
+	}
+
+	// No SlotsData for user id
+	if slotsData == nil {
+		log.Printf("HandleSpin::There is no SlotsData for user id: %v\n\n", userId)
+		apiResponse = MakeFailure(
+			ce.InternalServerErrorCode,
+			"No SlotsData for this user.",
+		)
+		return nil, &apiResponse
+	}
+
+	log.Printf("HandleSpin::Got SlotsData from DB:\n\t%+v\n\n", slotsData)
+
+	return slotsData, nil
+}
+
+/*
+	Check if the user has enough coin to spin. They won't need any
+	if they have a free spin stored.
+	If they don't have enough, an ApiResponse is returned.
+*/
+func spinCheckEnoughToBet(slotsData *db.SlotsData, spinCost int) *ApiResponse {
+	if !(slotsData.FreeSpins > 0) && !(slotsData.Coins >= spinCost) {
+		log.Printf("HandleSpin::Not enough coins (%v) to spin (%v)\n\n", slotsData.Coins, spinCost)
+		apiResponse := MakeFailure(ce.InsufficientCoinsErrorCode, "Insufficient coins.")
+		return &apiResponse
+	}
+
+	return nil
+}
+
+/*
+	Subtract the cost of the spin (unless it's free)
+	Modifies the slotsData object passed in.
+*/
+func spinApplySpinCost(slotsData *db.SlotsData, spinCost int) {
+	if slotsData.FreeSpins > 0 {
+		slotsData.FreeSpins = slotsData.FreeSpins - 1
+	} else {
+		slotsData.Coins = slotsData.Coins - spinCost
+	}
 }

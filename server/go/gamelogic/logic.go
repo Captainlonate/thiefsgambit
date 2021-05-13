@@ -47,7 +47,7 @@ func DoesReelLineStartWith(reelLine []Piece, pieces []Piece) bool {
 	the most valuable win condition for that payline (if any).
 	Adds up all the values of the winning paylines.
 */
-func EvaluateBoard(board Board) BoardEvaluation {
+func EvaluateBoard(board Board) *BoardEvaluation {
 	wins := []Win{}
 
 	// Go through every PayLine and see if there is a match
@@ -68,7 +68,7 @@ func EvaluateBoard(board Board) BoardEvaluation {
 		}
 	}
 
-	return BoardEvaluation{
+	return &BoardEvaluation{
 		Reels:     board,
 		Value:     SumWinsValue(wins),
 		PayLines:  ExtractPaylinesFromWins(wins),

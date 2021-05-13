@@ -20,7 +20,7 @@ func GetUserSlotsData(userId uint) (*SlotsData, error) {
 	return nil, nil
 }
 
-func UpdateSlotsData(newSlotsData *SlotsData) error {
+func SaveSlotsData(newSlotsData *SlotsData) error {
 	// Can't use DBConn.Save() because new object might
 	// have zero fields from the original selection
 	updateObj := SlotsData{
