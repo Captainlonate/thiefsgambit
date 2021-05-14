@@ -21,13 +21,13 @@ import Logger from './Logger'
     So I center the MainScene between the black space.
 */
 class App {
-  pixiApp: PIXI.Application;
-  logicalUnits: { width: number, height: number };
-  loader: Loader;
-  scene: MainScene | null = null;
-  logger: Logger
+  pixiApp;
+  logicalUnits = { width: 0, height: 0 };
+  loader;
+  scene = null;
+  logger
 
-  constructor (mountAt: HTMLElement) {
+  constructor (mountAt) {
     this.logger = new Logger()
 
     this.pixiApp = new PIXI.Application({
@@ -90,7 +90,7 @@ class App {
     I scale the logical size, by scaling the stage's container.
     The game's container (MainScene.container) uses the original logical sizes.
   */
-  handleWindowResize (windowWidth: number, windowHeight: number) {
+  handleWindowResize (windowWidth, windowHeight) {
     if (!this.scene) {
       return
     }

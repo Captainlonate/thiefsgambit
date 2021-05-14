@@ -1,4 +1,4 @@
-import { useState, FC } from 'react'
+import { useState } from 'react'
 import { SubmitCredentials, validateLoginForm } from './tools'
 import {
   Wrapper,
@@ -8,10 +8,10 @@ import {
   InputLabel,
   StyledTextInput,
   LogInButton,
-  ErrorMessages,
+  ErrorMessages
 } from './styles'
 
-const LoginScreen: FC = () => {
+const LoginScreen = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fadeOut, setFadeOut] = useState(false)
@@ -25,8 +25,8 @@ const LoginScreen: FC = () => {
     }, 2000)
   }
 
-  const onFailure = (errorMessage: string) => {
-    errorMessage = errorMessage || `Something didn't work right.`
+  const onFailure = (errorMessage) => {
+    errorMessage = errorMessage || "Something didn't work right."
     setErrorMessage(errorMessage)
     setTryingToSignIn(false)
   }
@@ -50,19 +50,19 @@ const LoginScreen: FC = () => {
         <LoginTitle>Thief's Gambit</LoginTitle>
 
         <InputContainer>
-          <InputLabel htmlFor="email">Email</InputLabel>
-          <StyledTextInput id="email" type="text" value={email} name="email" placeholder="Email" onChange={(e) => setEmail(e.target.value.toLowerCase())} />
+          <InputLabel htmlFor='email'>Email</InputLabel>
+          <StyledTextInput id='email' type='text' value={email} name='email' placeholder='Email' onChange={(e) => setEmail(e.target.value.toLowerCase())} />
         </InputContainer>
 
         <InputContainer>
-          <InputLabel htmlFor="password">Password</InputLabel>
-          <StyledTextInput id="password" type="password" value={password} name="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+          <InputLabel htmlFor='password'>Password</InputLabel>
+          <StyledTextInput id='password' type='password' value={password} name='password' placeholder='Password' onChange={(e) => setPassword(e.target.value)} />
         </InputContainer>
 
         {
-          errorMessage ? (
-            <ErrorMessages>{errorMessage.toString()}</ErrorMessages>
-          ) : null
+          errorMessage
+            ? (<ErrorMessages>{errorMessage.toString()}</ErrorMessages>)
+            : null
         }
 
         <InputContainer center>

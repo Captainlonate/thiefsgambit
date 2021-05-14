@@ -1,18 +1,10 @@
 import * as PIXI from 'pixi.js'
 
-interface ReelContainerOptions {
-  x?: number,
-  y?: number,
-  displayWidth?: number,
-  displayHeight?: number,
-  bgColor?: number
-}
-
 class ReelContainer extends PIXI.Container {
-  displayWidth: number;
-  displayHeight: number;
-  bgSprite: PIXI.Sprite | null = null;
-  maskGraphic: PIXI.Graphics;
+  displayWidth;
+  displayHeight;
+  bgSprite = null;
+  maskGraphic;
 
   constructor ({
     // x and y position
@@ -23,7 +15,7 @@ class ReelContainer extends PIXI.Container {
     displayHeight = 0,
     // Solid color of the background, or empty if no bg
     bgColor
-  }: ReelContainerOptions) {
+  }) {
     super()
     this.position.set(x, y)
     this.displayWidth = displayWidth
@@ -49,7 +41,7 @@ class ReelContainer extends PIXI.Container {
     return maskGraphic
   }
 
-  createBg (bgColor: number) {
+  createBg (bgColor) {
     const bgSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
     bgSprite.tint = bgColor
     bgSprite.width = this.displayWidth

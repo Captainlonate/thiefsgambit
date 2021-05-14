@@ -5,16 +5,15 @@ import HelmImg from '../images/helm_1k.png'
 import SceneImg from '../images/scene_3d.png'
 import FrameImg from '../images/picture_frame_3d.png'
 import PirateFont from '../../fonts/pirate_font.ttf'
-import { LoadAddOption, StringObject, PIXIResource } from '../types/types'
 
-export const ImagesToLoad: LoadAddOption[] = [
+export const ImagesToLoad = [
   { name: 'compass', url: CompassImg },
   { name: 'anchor', url: AnchorImg },
   { name: 'treasureMap', url: TreasureMapImg },
   { name: 'helm', url: HelmImg },
   { name: 'scene', url: SceneImg },
   { name: 'frame', url: FrameImg },
-  { name: 'pirate_font', url: PirateFont },
+  { name: 'pirate_font', url: PirateFont }
 ]
 
 /*
@@ -22,7 +21,7 @@ export const ImagesToLoad: LoadAddOption[] = [
   to each slot piece type, to the terms used within
   this client application
 */
-const serverKeyToAssetKey: StringObject = {
+const serverKeyToAssetKey = {
   map: 'treasureMap',
   compass: 'compass',
   anchor: 'anchor',
@@ -32,7 +31,7 @@ const serverKeyToAssetKey: StringObject = {
 /*
   returns a randomly select slot piece's name/key/label
 */
-export const getRandomPieceName = (): string => {
+export const getRandomPieceName = () => {
   const options = ['compass', 'anchor', 'treasureMap', 'frame']
   return options[Math.floor(Math.random() * options.length)]
 }
@@ -41,9 +40,9 @@ export const getRandomPieceName = (): string => {
   Randomly selects one of the slot's pieces textures
     resources: a pixi.loader.resources object
 */
-export const getRandomPieceTexture = (resources: PIXIResource) => {
-  return resources[getRandomPieceName()].texture
-}
+export const getRandomPieceTexture = (resources) => (
+  resources[getRandomPieceName()].texture
+)
 
 /*
   Translates a server's naming scheme for a specific image to
@@ -52,7 +51,7 @@ export const getRandomPieceTexture = (resources: PIXIResource) => {
   serverKey: How the server refers to a specific piece image
     (May or may not be the same as the name I gave it above)
 */
-export const getTextureByServerKey = (resources: PIXIResource, serverKey: string) => {
+export const getTextureByServerKey = (resources, serverKey) => {
   const assetKey = serverKeyToAssetKey[serverKey]
   return assetKey ? resources[assetKey].texture : undefined
 }

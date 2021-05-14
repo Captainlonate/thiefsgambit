@@ -1,18 +1,5 @@
-import { StandardApiResponse } from './common'
-
-export interface SignInVerdict {
-  authorized: boolean,
-  errorMessageToDisplay?: string,
-  data?: StandardApiResponse
-}
-
-export interface SignInArgs {
-  email: string,
-  password: string,
-}
-
-export const TryToSignIn = async ({ email, password }: SignInArgs): Promise<SignInVerdict> => {
-  const verdict: SignInVerdict = {
+export const TryToSignIn = async ({ email, password }) => {
+  const verdict = {
     authorized: false,
     errorMessageToDisplay: '',
     data: undefined
@@ -27,7 +14,7 @@ export const TryToSignIn = async ({ email, password }: SignInArgs): Promise<Sign
     })
 
     if (response.ok) {
-      const { success, error }: StandardApiResponse = await response.json()
+      const { success, error } = await response.json()
       verdict.authorized = success
       if (error) {
         console.log('Authentication Error:', error)

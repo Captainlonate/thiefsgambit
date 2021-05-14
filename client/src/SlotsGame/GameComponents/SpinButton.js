@@ -1,17 +1,7 @@
 import * as PIXI from 'pixi.js'
 
-interface SpinButtonOptions {
-  texture?: PIXI.Texture,
-  size?: number,
-  clickFn?: PIXI.utils.EventEmitter.ListenerFn,
-  position?: {
-    x?: number,
-    y?: number
-  },
-}
-
 class SpinButton extends PIXI.Sprite {
-  constructor (config: SpinButtonOptions) {
+  constructor (config) {
     const {
       texture,
       size = 100,
@@ -34,7 +24,7 @@ class SpinButton extends PIXI.Sprite {
     return this.width
   }
 
-  set size (dimensions: number) {
+  set size (dimensions) {
     this.width = dimensions
     this.height = dimensions
   }

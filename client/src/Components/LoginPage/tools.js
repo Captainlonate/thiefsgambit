@@ -1,18 +1,11 @@
 import { TryToSignIn } from '../../Network/login'
 import { validateEmail } from '../../utils'
 
-export type SignInOptions = {
-  email: string,
-  password: string,
-  onSuccess: () => void,
-  onFailure: (errorMessage: string) => void,
-}
-
 /*
   Invoked when the user is ready to submit their credentials
   to the server in an attempt to Sign In and get their JWT.
 */
-export const SubmitCredentials = async ({ email, password, onSuccess, onFailure }: SignInOptions) => {
+export const SubmitCredentials = async ({ email, password, onSuccess, onFailure }) => {
   email = email.trim().toLowerCase()
   password = password.trim()
   const verdict = await TryToSignIn({ email, password })
@@ -28,7 +21,7 @@ export const SubmitCredentials = async ({ email, password, onSuccess, onFailure 
   It's not a comprehensive check, but it'll rule out
   90% of the dumb cases.
 */
-export const validateLoginForm = (email: string, password: string): string => {
+export const validateLoginForm = (email, password) => {
   if (password.length === 0) {
     return 'You\'ll need a key to access yer treasure.'
   }

@@ -1,10 +1,10 @@
 import { formatCommas } from '../../utils'
 
 class GameState {
-  total: number;
-  bet: number;
-  lastWinnings: number;
-  canSpin: boolean;
+  total = 0;
+  bet = 0;
+  lastWinnings = 0;
+  canSpin = false;
 
   constructor () {
     this.total = 0

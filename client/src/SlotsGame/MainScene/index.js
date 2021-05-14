@@ -8,73 +8,53 @@ import NetworkManager from '../Network'
 import GameState from '../GameState'
 import { decFontSize } from '../../utils'
 import { baseMoneyStyles } from '../Config/ui'
-import Logger from '../Logger'
-import {
-  XYCoord,
-  PIXIResource,
-  CurrentStateResults,
-  SpinResults,
-  slotsGrid
-} from '../types/types'
-
-interface GamePositions {
-  reelContainer: XYCoord,
-  spinButton: XYCoord,
-  pieceYCoords: number[],
-  totalTextCoords: XYCoord,
-  betTextCoords: XYCoord,
-  winningsTextCoords: XYCoord
-}
-
-interface GameSizes {
-  numReels: number,
-  numRows: number,
-  reelContainerWidth: number,
-  reelContainerHeight: number,
-  reelSpaceWidth: number,
-  totalReelSpaces: number,
-  reelWidth: number,
-  reelHeight: number,
-  pieceMargin: number,
-  pieceSize: number,
-  reelRowHeight: number,
-  spinButtonSize: number
-}
-
-interface MainSceneOptions {
-  pixiApp: PIXI.Application,
-  logger: Logger,
-  sizes: {
-    logicalWidth: number,
-    logicalHeight: number
-  }
-}
+import { getDefaultGameSizes } from './GameSizes'
+import { getDefaultGamePositions } from './GamePositions'
 
 /*
 
 */
 class MainScene {
-  pixiApp: PIXI.Application;
-  loader: PIXI.Loader;
-  resources: PIXIResource;
-  network: NetworkManager;
-  gameState: GameState;
-  logicalWidth: number;
-  logicalHeight: number;
-  sizes: GameSizes;
-  positions: GamePositions;
-  container: PIXI.Container;
-  containerBG: PIXI.Sprite;
-  reelContainer: ReelContainer;
-  reels: Reel[];
-  spinButton: SpinButton;
-  totalUI: PIXI.Text;
-  betUI: PIXI.Text;
-  winningsUI: PIXI.Text;
-  spinning: boolean = false;
-  logger: Logger;
+  // PIXI.Application
+  pixiApp = null;
+  // PIXI.Loader
+  loader = null;
+  // pixiApp.loader.resources
+  resources = null;
+  // new NetworkManager()
+  network = null;
+  // new GameState()
+  gameState = null;
+  // Logical units of width
+  logicalWidth = 800;
+  // Logcal units of height
+  logicalHeight = 450;
+  // new GameSizes.getDefaultGameSizes()
+  sizes = null;
+  // new GamePositions.getDefaultGamePositions()
+  positions = null;
+  // PIXI.Container
+  container = null;
+  // PIXI.Sprite
+  containerBG = null;
+  // new ReelContainer()
+  reelContainer = null;
+  // Reel[]
+  reels = [];
+  // new SpinButton()
+  spinButton = null;
+  // PIXI.Text
+  totalUI = null;
+  // PIXI.Text
+  betUI = null;
+  // PIXI.Text
+  winningsUI = null;
+  // If the board animation is currently spinning
+  spinning = false;
+  // new Logger()
+  logger = null;
 
-  constructor ({ pixiApp, logger, sizes }: MainSceneOptions) {
+  constructor ({ pixiApp, logger, sizes }) {
     // PIXI Aliases
     this.pixiApp = pixiApp
     this.loader = pixiApp.loader
@@ -129,10 +109,19 @@ class MainScene {
     this.initialize()
   }
 
+  /*
+    Since ES6 Class fields are still experimental, standardjs does
+    not support them. So instead, this function will list out all
+    class fields in one place, so that it's easy to see what's available.
+  */
+  initializeClassProperties () {
+
+  }
+
   initialize () {
     this.network
       .getCurrentState()
-      .then(({ bet, total }: CurrentStateResults) => {
+      .then(({ bet, total }) => {
         this.logger.debug('Got the initial state', { bet, total })
         this.gameState.total = total
         this.gameState.bet = bet
@@ -161,12 +150,11 @@ class MainScene {
   */
   spin () {
     if (this.gameState.canSpin && !this.spinning) {
-      // this.network.login() // TODO: Remove
       this.spinning = true
       setTimeout(() => {
         this.network
           .requestSpin(1)
-          .then(({ newTotal, spinResults, spinValue }: SpinResults) => {
+          .then(({ newTotal, spinResults, spinValue }) => {
             this.logger.debug('The Returned Network Data', { newTotal, spinResults, spinValue })
             this.gameState.total = newTotal
             this.gameState.lastWinnings = spinValue
@@ -206,16 +194,15 @@ class MainScene {
   /*
 
   */
-  stopSpinning (results: slotsGrid) {
+  stopSpinning (results) {
     this.spinning = false
 
     // Put the reels back in their original positions
     // And update the images to be what the server decided
-    const { pieceYCoords } = this.positions
     for (let reelIdx = 0; reelIdx < this.reels.length; reelIdx++) {
       const pieces = this.reels[reelIdx].pieces
       for (let pieceIdx = 0; pieceIdx < pieces.length; pieceIdx++) {
-        pieces[pieceIdx].y = pieceYCoords[pieceIdx]
+        pieces[pieceIdx].y = this.positions.pieceYCoords[pieceIdx]
         if (pieceIdx >= pieces.length - 3) {
           const offsetIdx = pieceIdx - (pieces.length - 3)
           const serverKey = results[reelIdx][offsetIdx]
@@ -233,7 +220,7 @@ class MainScene {
   /*
 
   */
-  createBgSprite (width: number, height: number, color: number = 0xffffff) {
+  createBgSprite (width, height, color = 0xffffff) {
     // const bgSprite = new PIXI.Sprite(PIXI.Texture.WHITE)
     const bgSprite = new PIXI.Sprite(this.resources.scene.texture)
     bgSprite.width = width
@@ -336,85 +323,65 @@ class MainScene {
   /*
 
   */
-  getSizes ({ logicalWidth }: { logicalWidth: number }) {
+  getSizes ({ logicalWidth }) {
     const numReels = 5
     const numRows = 3
     const reelContainerWidth = Math.round(0.56 * logicalWidth)
-    const reelSpaceWidth = Math.floor(reelContainerWidth * 0.02)
-    // const reelSpaceWidth = 0
-    const totalReelSpaces = reelSpaceWidth * (numReels - 1)
+    const totalReelSpaces = numReels - 1
     const reelWidth = Math.floor((reelContainerWidth - totalReelSpaces) / numReels)
     const pieceMargin = Math.floor(0.1 * reelWidth)
-    const pieceSize = Math.floor(reelWidth - (pieceMargin * 2))
     const reelHeight = reelWidth * numRows
-    const reelContainerHeight = reelHeight
-    const reelRowHeight = reelWidth
-    const spinButtonSize = Math.floor(0.5 * reelContainerWidth)
 
-    return {
-      numReels,
-      numRows,
-      reelContainerWidth,
-      reelContainerHeight,
-      reelSpaceWidth,
-      totalReelSpaces,
-      reelWidth,
-      reelHeight,
-      pieceMargin,
-      pieceSize,
-      reelRowHeight,
-      spinButtonSize
-    }
+    const gameSizes = getDefaultGameSizes()
+
+    gameSizes.numReels = numReels
+    gameSizes.numRows = numRows
+    gameSizes.reelContainerWidth = reelContainerWidth
+    gameSizes.reelSpaceWidth = Math.floor(reelContainerWidth * 0.02)
+    gameSizes.totalReelSpaces = totalReelSpaces
+    gameSizes.reelWidth = reelWidth
+    gameSizes.pieceMargin = pieceMargin
+    gameSizes.pieceSize = Math.floor(reelWidth - (pieceMargin * 2))
+    gameSizes.reelHeight = reelHeight
+    gameSizes.reelContainerHeight = reelHeight
+    gameSizes.reelRowHeight = reelWidth
+    gameSizes.spinButtonSize = Math.floor(0.5 * reelContainerWidth)
+
+    return gameSizes
   }
 
   /*
 
-    Depends on this.sizes being calculated already
+    This function depends on this.sizes being calculated/populated already
   */
   getPositions () {
-    const { reelContainerWidth, reelContainerHeight } = this.sizes
+    const {
+      reelContainerWidth,
+      reelContainerHeight,
+      reelRowHeight,
+      pieceMargin
+    } = this.sizes
+    const positions = getDefaultGamePositions()
 
-    const reelContainer = {
-      x: Math.floor((this.logicalWidth - reelContainerWidth) / 2),
-      y: Math.floor((this.logicalHeight - reelContainerHeight) / 2) - 4
-    }
-
-    const spinButton = {
-      x: Math.floor(this.logicalWidth * 0.74),
-      y: Math.floor(this.logicalHeight * 0.45)
-    }
-
-    const pieceYCoords = [
-      -2 * this.sizes.reelRowHeight + this.sizes.pieceMargin,
-      -1 * this.sizes.reelRowHeight + this.sizes.pieceMargin,
-      0 * this.sizes.reelRowHeight + this.sizes.pieceMargin,
-      1 * this.sizes.reelRowHeight + this.sizes.pieceMargin,
-      2 * this.sizes.reelRowHeight + this.sizes.pieceMargin
+    positions.reelContainer.x = Math.floor((this.logicalWidth - reelContainerWidth) / 2)
+    positions.reelContainer.y = Math.floor((this.logicalHeight - reelContainerHeight) / 2) - 4
+    positions.spinButton.x = Math.floor(this.logicalWidth * 0.74)
+    positions.spinButton.y = Math.floor(this.logicalHeight * 0.45)
+    positions.totalTextCoords.x = Math.floor(this.logicalWidth * 0.35)
+    positions.totalTextCoords.y = Math.floor(this.logicalHeight * 0.93)
+    positions.betTextCoords.x = Math.floor(this.logicalWidth * 0.60)
+    positions.betTextCoords.y = Math.floor(this.logicalHeight * 0.92)
+    positions.winningsTextCoords.x = Math.floor(this.logicalWidth * 0.10)
+    positions.winningsTextCoords.y = Math.floor(this.logicalHeight * 0.82)
+    positions.pieceYCoords = [
+      -2 * reelRowHeight + pieceMargin,
+      -1 * reelRowHeight + pieceMargin,
+      0 * reelRowHeight + pieceMargin,
+      1 * reelRowHeight + pieceMargin,
+      2 * reelRowHeight + pieceMargin
     ]
 
-    const totalTextCoords = {
-      x: Math.floor(this.logicalWidth * 0.35),
-      y: Math.floor(this.logicalHeight * 0.93)
-    }
-
-    const betTextCoords = {
-      x: Math.floor(this.logicalWidth * 0.60),
-      y: Math.floor(this.logicalHeight * 0.92)
-    }
-
-    const winningsTextCoords = {
-      x: Math.floor(this.logicalWidth * 0.10),
-      y: Math.floor(this.logicalHeight * 0.82)
-    }
-
-    return {
-      reelContainer,
-      spinButton,
-      pieceYCoords,
-      totalTextCoords,
-      betTextCoords,
-      winningsTextCoords
-    }
+    return positions
   }
 }
 

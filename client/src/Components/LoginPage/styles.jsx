@@ -25,13 +25,13 @@ export const LoginBox = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  ${({ disappear }: { disappear?: boolean }) => (disappear) ? FadeOutAnimation : ''}
+  ${({ disappear }) => (disappear) ? FadeOutAnimation : ''}
   max-width: 15em;
 `
 
 export const InputContainer = styled.div`
   padding: .5em 0;
-  text-align: ${({ center }: { center?: boolean }) => center ? 'center' : 'left'};
+  text-align: ${({ center }) => center ? 'center' : 'left'};
   width: 80%;
 `
 

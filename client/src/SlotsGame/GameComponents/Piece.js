@@ -1,20 +1,11 @@
 import * as PIXI from 'pixi.js'
 import { getRandomPieceName } from '../Config/thingsToLoad'
-import { PIXIResource } from '../types/types'
-
-interface PieceOptions {
-  resources: PIXIResource,
-  textureName?: string,
-  x?: number,
-  y?: number,
-  size?: number
-}
 
 class Piece extends PIXI.Sprite {
-  allTextures: PIXIResource;
-  pieceType: string;
+  allTextures;
+  pieceType;
 
-  constructor ({ resources, textureName, x = 0, y = 0, size = 100 }: PieceOptions) {
+  constructor ({ resources, textureName, x = 0, y = 0, size = 100 }) {
     const pieceType = textureName || getRandomPieceName()
     const texture = resources[pieceType].texture
     super(texture)
@@ -26,7 +17,7 @@ class Piece extends PIXI.Sprite {
     this.height = size
   }
 
-  updateTexture (newAssetKey: string) {
+  updateTexture (newAssetKey) {
     this.pieceType = newAssetKey
     const newTexture = this.allTextures[newAssetKey].texture
     if (newTexture) {
