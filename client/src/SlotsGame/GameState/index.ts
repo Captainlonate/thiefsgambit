@@ -1,4 +1,4 @@
-import { formatCommas } from '../utils'
+import { formatCommas } from '../../utils'
 
 class GameState {
   total: number;

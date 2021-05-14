@@ -133,3 +133,14 @@ func TryLoginOrError(loginForm *LoginInputModel) (*database.User, *ApiResponse) 
 
 	return dbUser, nil
 }
+
+/*
+	One use for this is for informing the client
+	whether or not they are currently logged in.
+	Earlier middleware can reject invalid JWT's.
+	So, if the request makes it here, then they
+	must be logged in.
+*/
+func HandleJustReturnSuccess(c *fiber.Ctx) error {
+	return c.JSON(ApiResponse{Success: true})
+}

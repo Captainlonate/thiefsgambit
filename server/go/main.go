@@ -56,6 +56,7 @@ func SetUpFiber() (app *fiber.App) {
 	middleware and route handlers.
 */
 func SetUpRoutes(app *fiber.App) {
+	app.Get("/isloggedin", routes.ProtectRouteMiddleware, routes.HandleJustReturnSuccess)
 	app.Post("/login", routes.HandleLogin)
 	app.Post("/logout", routes.HandleLogout)
 	app.Post("/signup", routes.HandleSignup)

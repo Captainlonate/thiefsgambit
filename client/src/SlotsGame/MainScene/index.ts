@@ -6,7 +6,7 @@ import Reel from '../GameComponents/Reel'
 import Piece from '../GameComponents/Piece'
 import NetworkManager from '../Network'
 import GameState from '../GameState'
-import { decFontSize } from '../utils'
+import { decFontSize } from '../../utils'
 import { baseMoneyStyles } from '../Config/ui'
 import Logger from '../Logger'
 import {

@@ -1,6 +1,23 @@
+@import "normalize.css";
+
 @font-face {
   font-family: pirate_font;
   src: url(fonts/pirate_font.ttf);
+}
+
+@font-face {
+  font-family: rapscallion_font;
+  src: url(fonts/rapscallion.ttf);
+}
+
+@font-face {
+  font-family: freebooter_shadow;
+  src: url(fonts/freebooter_shadow.ttf);
+}
+
+@font-face {
+  font-family: freebooter_updated;
+  src: url(fonts/freebooter_updated.ttf);
 }
 
 body {

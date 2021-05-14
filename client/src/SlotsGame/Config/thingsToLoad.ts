@@ -3,9 +3,8 @@ import AnchorImg from '../images/anchor_1k.png'
 import TreasureMapImg from '../images/treasure_map_1k.png'
 import HelmImg from '../images/helm_1k.png'
 import SceneImg from '../images/scene_3d.png'
-// import FrameImg from '../images/frame.png'
 import FrameImg from '../images/picture_frame_3d.png'
-import PirateFont from '../fonts/pirate_font.ttf'
+import PirateFont from '../../fonts/pirate_font.ttf'
 import { LoadAddOption, StringObject, PIXIResource } from '../types/types'
 
 export const ImagesToLoad: LoadAddOption[] = [
