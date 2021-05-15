@@ -327,7 +327,8 @@ class MainScene {
     const numReels = 5
     const numRows = 3
     const reelContainerWidth = Math.round(0.56 * logicalWidth)
-    const totalReelSpaces = numReels - 1
+    const reelSpaceWidth = Math.floor(reelContainerWidth * 0.02)
+    const totalReelSpaces = reelSpaceWidth * (numReels - 1)
     const reelWidth = Math.floor((reelContainerWidth - totalReelSpaces) / numReels)
     const pieceMargin = Math.floor(0.1 * reelWidth)
     const reelHeight = reelWidth * numRows
@@ -337,7 +338,7 @@ class MainScene {
     gameSizes.numReels = numReels
     gameSizes.numRows = numRows
     gameSizes.reelContainerWidth = reelContainerWidth
-    gameSizes.reelSpaceWidth = Math.floor(reelContainerWidth * 0.02)
+    gameSizes.reelSpaceWidth = reelSpaceWidth
     gameSizes.totalReelSpaces = totalReelSpaces
     gameSizes.reelWidth = reelWidth
     gameSizes.pieceMargin = pieceMargin

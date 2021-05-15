@@ -15,6 +15,14 @@ export const CheckIsLoggedIn = async () => {
   return false
 }
 
+/*
+  Higher Order Component that wraps another component and provides
+  it with:
+    1) isLoggedIn - boolean
+    2) isLoading - boolean if currently doing a network fetch
+    3) reCheckLoggedIn - Function that do another network call
+      to check again.
+*/
 export const withIsLoggedIn = (WrappedComponent) => {
   const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
 

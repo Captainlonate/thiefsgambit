@@ -28,7 +28,7 @@ class NetworkManager {
 
   async requestSpin (bet) {
     return new Promise((resolve, reject) => {
-      fetch(process.env.URL_SPIN, {
+      fetch(process.env.REACT_APP_URL_SPIN, {
         // Allows client to send the HttpOnly cookie
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

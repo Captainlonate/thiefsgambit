@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import { AuthContext } from '../context/auth'
 import { SubmitCredentials, validateLoginForm } from './tools'
 import {
   Wrapper,
@@ -12,6 +13,7 @@ import {
 } from './styles'
 
 const LoginScreen = () => {
+  const { loggedIn, updateLoggedIn } = useContext(AuthContext)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fadeOut, setFadeOut] = useState(false)
@@ -21,7 +23,11 @@ const LoginScreen = () => {
   const onSuccess = () => {
     setFadeOut(true)
     setTimeout(() => {
-      console.log('Time to redirect!')
+      updateLoggedIn({
+        ...loggedIn,
+        isLoggedIn: true,
+        loading: false
+      })
     }, 2000)
   }
 

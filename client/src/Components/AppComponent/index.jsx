@@ -1,11 +1,12 @@
-import LoginPage from '../LoginPage'
-import { withIsLoggedIn } from '../../Network/checkIsLoggedIn'
+import Routes from '../Routes'
+import { AuthProvider } from '../context/auth'
 
-const AppComponent = (props) => {
-  console.log(props)
+const AppComponent = () => {
   return (
-    <LoginPage />
+    <AuthProvider>
+      <Routes />
+    </AuthProvider>
   )
 }
 
-export default withIsLoggedIn(AppComponent)
+export default AppComponent

@@ -38,7 +38,8 @@ class App {
       resolution: window.devicePixelRatio || 1,
       // This does not change the <canvas>'s width and height (like resolution does).
       // It changes the CSS's width and height to be (1 / window.devicePixelRatio) pixels
-      autoDensity: true
+      autoDensity: true,
+      backgroundColor: 0x292d33
     })
 
     // The logical units that the scene will use for drawing (will be scaled)
