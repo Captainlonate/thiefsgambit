@@ -27,11 +27,12 @@ class App {
   scene = null;
   logger
 
-  constructor (mountAt) {
+  constructor ({ mountAt, gameArea }) {
     this.logger = new Logger()
 
     this.pixiApp = new PIXI.Application({
-      resizeTo: window,
+      // resizeTo: window,
+      resizeTo: mountAt,
       antialias: true,
       // It multiplies the <canvas> width and height * the window.devicePixelRatio.
       // Even though resizeTo is set, the <canvas> will be MORE than the window
@@ -46,11 +47,14 @@ class App {
     this.logicalUnits = { width: 800, height: 450 }
 
     // view is a <canvas> DOM element
+    this.mountAt = mountAt
     mountAt.appendChild(this.pixiApp.view)
 
     // When the browser resizes, the stage container will be scaled
     window.addEventListener('resize', () => {
-      this.handleWindowResize(window.innerWidth, window.innerHeight)
+      // this.handleWindowResize(window.innerWidth, window.innerHeight)
+      console.log('mountAt', mountAt.offsetWidth, mountAt.offsetHeight)
+      this.handleWindowResize(mountAt.offsetWidth, mountAt.offsetHeight)
     })
 
     const pirateFont = new FontFaceObserver('pirate_font')
@@ -75,7 +79,8 @@ class App {
     })
     this.pixiApp.stage.addChild(this.scene.container)
     // Initialize the size of the main scene
-    this.handleWindowResize(window.innerWidth, window.innerHeight)
+    // this.handleWindowResize(window.innerWidth, window.innerHeight)
+    this.handleWindowResize(this.mountAt.offsetWidth, this.mountAt.offsetHeight)
   }
 
   /*
@@ -91,25 +96,28 @@ class App {
     I scale the logical size, by scaling the stage's container.
     The game's container (MainScene.container) uses the original logical sizes.
   */
-  handleWindowResize (windowWidth, windowHeight) {
+  handleWindowResize () {
     if (!this.scene) {
       return
     }
-    const screenAspect = windowWidth / windowHeight
+    const containerWidth = this.mountAt.offsetWidth
+    const containerHeight = this.mountAt.offsetHeight
+    console.log('Logical Resize', containerWidth, containerHeight)
+    const screenAspect = containerWidth / containerHeight
     const logicalAspect = this.logicalUnits.width / this.logicalUnits.height
 
     if (logicalAspect >= screenAspect) {
-      const widthScaleFactor = windowWidth / this.logicalUnits.width
+      const widthScaleFactor = containerWidth / this.logicalUnits.width
       this.pixiApp.stage.scale.set(widthScaleFactor)
       // Positioning the container in the vertical middle
-      const blackSpace = windowHeight - (windowWidth / logicalAspect)
+      const blackSpace = containerHeight - (containerWidth / logicalAspect)
       this.scene.container.x = 0
       this.scene.container.y = Math.floor(blackSpace / 2) / widthScaleFactor
     } else {
-      const heightScaleFactor = windowHeight / this.logicalUnits.height
+      const heightScaleFactor = containerHeight / this.logicalUnits.height
       this.pixiApp.stage.scale.set(heightScaleFactor)
       // Position the container in the horizontal middle
-      const blackSpace = windowWidth - (windowHeight * logicalAspect)
+      const blackSpace = containerWidth - (containerHeight * logicalAspect)
       this.scene.container.x = Math.floor(blackSpace / 2) / heightScaleFactor
       this.scene.container.y = 0
     }
