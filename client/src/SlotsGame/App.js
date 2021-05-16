@@ -102,6 +102,7 @@ class App {
     }
     const containerWidth = this.mountAt.offsetWidth
     const containerHeight = this.mountAt.offsetHeight
+    this.pixiApp.renderer.resize(containerWidth, containerHeight)
     console.log('Logical Resize', containerWidth, containerHeight)
     const screenAspect = containerWidth / containerHeight
     const logicalAspect = this.logicalUnits.width / this.logicalUnits.height

@@ -1,48 +1,32 @@
 import { useState } from 'react'
 import ChatSidebar from '../Sidebar/Chat'
-import ClosedSidebar from '../Sidebar/Closed'
+import ClosedSidebar from '../Sidebar/ClosedSidebar'
 import styled from 'styled-components'
 
-export const MenuContainer = styled.div`
+export const SidebarContainerWrapper = styled.div`
   width: ${({ open }) => open ? '20em' : '5em'};
-  background-color: pink;
+  background-color: #0f3b50;
   display: flex;
 `
 
-export const Menu = styled.div`
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  justify-content: start;
-  align-items: center;
-`
-
-export const MenuItem = styled.div`
-  box-sizing: border-box;
-  padding: 0.5em;
-`
-
-const SidebarContainer = () => {
+const SidebarContainer = ({ onToggleOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const toggleMenuOpen = () => {
+    if (typeof onToggleOpen === 'function') {
+      onToggleOpen(!menuOpen)
+    }
     setMenuOpen(!menuOpen)
-    // The DOM will not immediately update the
-    // size of the container. So this it's necessary to let
-    // the dom update, before recalculating the dimensions
-    // setImmediate(() => {
-    //   game.handleWindowResize()
-    // })
   }
 
   return (
-    <MenuContainer open={menuOpen}>
+    <SidebarContainerWrapper open={menuOpen}>
       {
         menuOpen
           ? <ChatSidebar onOpenToggle={toggleMenuOpen} />
           : <ClosedSidebar onOpenToggle={toggleMenuOpen} />
       }
-    </MenuContainer>
+    </SidebarContainerWrapper>
   )
 }
 
