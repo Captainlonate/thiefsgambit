@@ -1,5 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react'
 import App from '../../SlotsGame/App'
+import ChatSidebar from '../Sidebar/Chat'
+import ClosedSidebar from '../Sidebar/Closed'
+import SidebarContainer from '../Sidebar/SidebarContainer'
 import {
   GamePageWrapper,
   GameAndMenuContainer,
@@ -42,13 +45,14 @@ const GamePage = () => {
         {/* Game */}
         <GameContainer ref={gameMountPointRef} />
         {/* Menu */}
-        <MenuContainer open={menuOpen}>
-          <Menu>
-            <MenuItem onClick={toggleMenuOpen}>A</MenuItem>
-            <MenuItem>B</MenuItem>
-            <MenuItem>C</MenuItem>
-          </Menu>
-        </MenuContainer>
+        <SidebarContainer />
+        {/* <MenuContainer open={menuOpen}>
+          {
+            menuOpen
+              ? <ChatSidebar />
+              : <ClosedSidebar />
+          }
+        </MenuContainer> */}
       </GameAndMenuContainer>
     </GamePageWrapper>
   )

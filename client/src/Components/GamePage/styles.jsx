@@ -21,7 +21,7 @@ export const GameAndMenuContainer = styled.div`
 `
 
 export const MenuContainer = styled.div`
-  width: ${({ open }) => open ? '10em' : '5em'};
+  width: ${({ open }) => open ? '20em' : '5em'};
   background-color: pink;
   display: flex;
 `
@@ -45,9 +45,4 @@ export const GameContainer = styled.div`
   padding: 0;
   border: 0;
   overflow: hidden;
-
-  /* & > canvas {
-    max-width: 100%;
-    max-height: 100%;
-  } */
 `
