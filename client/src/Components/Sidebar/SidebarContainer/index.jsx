@@ -1,13 +1,7 @@
 import { useState } from 'react'
-import ChatSidebar from '../Sidebar/Chat'
-import ClosedSidebar from '../Sidebar/ClosedSidebar'
-import styled from 'styled-components'
-
-export const SidebarContainerWrapper = styled.div`
-  width: ${({ open }) => open ? '20em' : '5em'};
-  background-color: #0f3b50;
-  display: flex;
-`
+import ChatSidebar from '../Chat'
+import ClosedSidebar from '../ClosedSidebar'
+import { SidebarContainerWrapper } from './styles'
 
 const SidebarContainer = ({ onToggleOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false)
