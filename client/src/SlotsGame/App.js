@@ -31,7 +31,6 @@ class App {
     this.logger = new Logger()
 
     this.pixiApp = new PIXI.Application({
-      // resizeTo: window,
       resizeTo: mountAt,
       antialias: true,
       // It multiplies the <canvas> width and height * the window.devicePixelRatio.
@@ -52,8 +51,6 @@ class App {
 
     // When the browser resizes, the stage container will be scaled
     window.addEventListener('resize', () => {
-      // this.handleWindowResize(window.innerWidth, window.innerHeight)
-      console.log('mountAt', mountAt.offsetWidth, mountAt.offsetHeight)
       this.handleWindowResize(mountAt.offsetWidth, mountAt.offsetHeight)
     })
 
@@ -103,7 +100,7 @@ class App {
     const containerWidth = this.mountAt.offsetWidth
     const containerHeight = this.mountAt.offsetHeight
     this.pixiApp.renderer.resize(containerWidth, containerHeight)
-    console.log('Logical Resize', containerWidth, containerHeight)
+
     const screenAspect = containerWidth / containerHeight
     const logicalAspect = this.logicalUnits.width / this.logicalUnits.height
 

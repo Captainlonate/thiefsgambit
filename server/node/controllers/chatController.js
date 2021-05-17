@@ -1,4 +1,9 @@
+const db = require('../database')
 const { getMessagesForRoomQuery } = require('../queries/chatMessages')
+const {
+  getAllChatRooms,
+  getAllCommonChatRooms
+} = require('../queries/chatRooms')
 
 /*
   Given a list of ChatMessage records from the database and
@@ -24,10 +29,7 @@ const prepareChatsForResponse = (chats, currentUserId) => (
 exports.getChatsForRoom = (req, res) => {
   const roomId = req.params.roomId
 
-  console.log(`Get chats for room ${roomId}`, typeof roomId)
-  console.log('res.locals', JSON.stringify(res.locals, null, 2))
-
-  pool.query(getMessagesForRoomQuery, [roomId], (error, results) => {
+  db.query(getMessagesForRoomQuery, [roomId], (error, results) => {
     if (error) {
       console.error(`Error querying chats for room id: ${roomId}`, error.message)
       return res.json({
@@ -40,11 +42,47 @@ exports.getChatsForRoom = (req, res) => {
         data: []
       })
     }
-    console.log('Success', results.rows, res.locals.userId, typeof res.locals.userId)
+
     return res.json({
       success: true,
       error: null,
       data: prepareChatsForResponse(results.rows, res.locals.userId)
+    })
+  })
+}
+
+/*
+  Fetches a list of all the ChatRooms that are visible
+  to the user. Elite users can see all chat rooms, whilst
+  others can only see ChatRooms marked as not elite.
+  A user is Elite if their JWT's payload contained:
+    iselite = true
+  which will be stored in res.locals.isElite
+*/
+exports.getChatRooms = (req, res) => {
+  // This will be a typeof boolean
+  const userIsElite = res.locals.isElite
+
+  const roomsQuery = userIsElite ? getAllChatRooms : getAllCommonChatRooms
+
+  db.query(roomsQuery, (error, results) => {
+    if (error) {
+      console.error(`Error querying chat rooms for isElite: ${userIsElite}`, error.message)
+      return res.json({
+        success: false,
+        error: {
+          error_code: 'error_getting_chat_rooms',
+          human_msg: 'Failed to get chat rooms for user.',
+          err: null
+        },
+        data: []
+      })
+    }
+
+    return res.json({
+      success: true,
+      error: null,
+      data: results.rows
     })
   })
 }

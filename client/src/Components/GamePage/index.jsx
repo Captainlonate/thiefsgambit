@@ -17,7 +17,6 @@ const GamePage = () => {
   const onToggleSidebar = () => {
     if (game) {
       setImmediate(() => {
-        console.log('Handling')
         game.handleWindowResize()
       })
     }

@@ -4,6 +4,7 @@ const {
 } = require('./tableNames')
 
 // Get recent chat messages for a particular chat room
+// $1 = chat room id
 exports.getMessagesForRoomQuery = `
   SELECT
     cm.id as "messageId",
