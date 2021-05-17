@@ -1,94 +1,51 @@
+// For loading the .env file
+require('dotenv').config()
+// For creating the API
 const express = require('express')
+// Middleware for express
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const jwt = require('jsonwebtoken')
+// const jwt = require('jsonwebtoken')
+// For connecting to Postgres
+// const Pool = require('pg').Pool
+// Routes for express
+const chatRoutes = require('./routes/chat')
 
+process.title = `Thief's Gambit Chat`
+
+// Make sure all the necessary environment vars are present
+// const necessaryEnvVars = [
+//   process.env.DB_USER,
+//   process.env.DB_URL,
+//   process.env.DB_NAME,
+//   process.env.DB_PASS,
+//   process.env.DB_PORT,
+// ]
+// if (!necessaryEnvVars.every((envVar) => envVar)) {
+//   throw new Error('Missing environment variables!')
+// }
+
+// Connect to the PostGres database
+// const pool = new Pool({
+//   user: process.env.DB_USER,
+//   host: process.env.DB_URL,
+//   database: process.env.DB_NAME,
+//   password: process.env.DB_PASS,
+//   port: process.env.DB_PORT,
+// })
+
+// Express and express's middleware
 const app = express()
-
-process.title = 'Slots Chat'
-
-app.use(cors({
-  origin: true,
-  credentials: true
-}))
-// parse application/x-www-form-urlencoded
+app.use(cors({ origin: true, credentials: true }))
 app.use(express.urlencoded({ extended: true }))
-// parse application/json content-type
 app.use(express.json())
-//
 app.use(cookieParser())
 
-const port = 3002
+// Routes
+app.use('/chats', chatRoutes)
 
-const mockMessages = [
-  { id: '1', them: false, author: 'Me', message: 'Hello' },
-  { id: '2', them: true, author: 'Regina', message: 'Morning' },
-  { id: '3', them: false, author: 'Me', message: 'Hello' },
-  { id: '4', them: true, author: 'Regina', message: 'Morning' },
-  { id: '5', them: false, author: 'Me', message: 'Hello' },
-  { id: '6', them: true, author: 'Regina', message: 'Morning' },
-  { id: '7', them: false, author: 'Me', message: 'Hello' },
-  { id: '8', them: true, author: 'Regina', message: 'Morning' },
-  { id: '9', them: false, author: 'Me', message: 'Hello' },
-  { id: '10', them: true, author: 'Regina', message: 'Morning' },
-  { id: '11', them: false, author: 'Me', message: 'Hello' },
-  { id: '12', them: true, author: 'Regina', message: 'Morning' },
-  { id: '13', them: true, author: 'Regina', message: 'Morning' },
-  { id: '14', them: true, author: 'Regina', message: 'Morning' },
-]
-
-const makeFailedResponse = (errorCode, message) => ({
-  success: false,
-  error: {
-    error_code: errorCode,
-    human_msg: message,
-    err: null
-  },
-  data: null
-})
-
-const JWTMiddleware = (req, res, next) => {
-  const accessToken = req.cookies.jwt
-
-  if (!accessToken) {
-    console.log('NO ACCESS TOKEN')
-    return res.json(
-      makeFailedResponse('not_logged_in', 'Missing/No Token.')
-    )
-  }
-
-  try {
-    const payload = jwt.verify(
-      accessToken,
-      '',
-      {
-        algorithms: ['HS256']
-      }
-    )
-    res.locals.userId = payload.uuid
-    res.locals.userName = payload.username
-    res.locals.email = payload.email
-    res.locals.expiration = payload.Exp
-    res.locals.authenticatedJWT = true
-    next()
-  } catch (ex) {
-    console.log(`Error when jwt.verify(accessToken):\n\t${ex.message}\n`)
-    return res.json(
-      makeFailedResponse('bad_token', 'Bad/Malformed/Unverifiable Token.')
-    )
-  }
-}
-
-app.get('/recentchats/:roomId', JWTMiddleware, (req, res) => {
-  console.log(`Get chats for room ${req.params.roomId}`)
-  console.log('res.locals', JSON.stringify(res.locals, null, 2))
-  res.json({
-    success: true,
-    error: null,
-    data: mockMessages
-  })
-})
-
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
+// Start express
+const EXPRESS_PORT = 3002
+app.listen(EXPRESS_PORT, () => {
+  console.log(`Example app listening at http://localhost:${EXPRESS_PORT}`)
 })

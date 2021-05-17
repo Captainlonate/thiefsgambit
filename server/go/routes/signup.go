@@ -69,6 +69,22 @@ func HandleSignup(c *fiber.Ctx) error {
 		))
 	}
 
+	// Has the username already been taken
+	usernameIsTaken, queryError := db.IsUsernameInUse(signupCredentials.Username)
+	if queryError != nil {
+		return c.JSON(MakeFailure(
+			ce.InternalServerErrorCode,
+			"Server error. Could not query for username.",
+		))
+	}
+
+	if usernameIsTaken {
+		return c.JSON(MakeFailure(
+			ce.UsernameInUseErrorCode,
+			fmt.Sprintf("The username %s is already in use.", signupCredentials.Username),
+		))
+	}
+
 	// Create new user
 	userToAdd := db.User{
 		Username:       signupCredentials.Username,

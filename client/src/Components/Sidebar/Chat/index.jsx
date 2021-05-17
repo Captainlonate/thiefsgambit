@@ -19,7 +19,7 @@ const ChatSidebar = ({ onOpenToggle }) => {
   const [groupedChats, setChats] = useState([])
 
   useEffect(() => {
-    getRecentChatsForRoom({ roomId: 'common' })
+    getRecentChatsForRoom({ roomId: 1 })
       .then((chats) => {
         setChats(groupChats(chats))
       })

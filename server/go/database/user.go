@@ -18,6 +18,16 @@ func IsEmailInUse(emailAddress string) (bool, error) {
 }
 
 /*
+	Checks the Users table for a User with the provided
+	emailAddress. Returns true if the user is already
+	in the database.
+*/
+func IsUsernameInUse(username string) (bool, error) {
+	user, err := GetUserByUsername(username)
+	return user != nil, err
+}
+
+/*
 	Query the database for a user based on their unique email address.
 	Either returns the located User object, or nil if it couldn't be found.
 	If the query fails, returns an error.
@@ -39,7 +49,7 @@ func GetUserByEmail(emailAddress string) (*User, error) {
 }
 
 /*
-	Query the database for a user based on their unique email address.
+	Query the database for a user based on their unique username.
 	Either returns the located User object, or nil if it couldn't be found.
 	If the query fails, returns an error.
 */

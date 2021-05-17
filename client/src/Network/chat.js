@@ -17,7 +17,7 @@ const mockMessages = [
 ]
 
 export const getRecentChatsForRoom = async ({ roomId }) => {
-  const url = `${process.env.REACT_APP_URL_CHAT_GETRECENT}/${roomId}`
+  const url = `${process.env.REACT_APP_URL_CHAT_GETRECENTROOM}/${roomId}`
   const response = await window.fetch(url, {
     method: 'GET',
     credentials: 'include'

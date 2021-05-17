@@ -6,17 +6,23 @@ import {
 } from './styles'
 
 export const groupChats = (chats) => {
-  return chats.reduce((acc, el) => {
-    if (acc.length === 0 || acc[acc.length - 1].author !== el.author) {
+  return chats.reduce((acc, chat) => {
+    if (acc.length === 0 || acc[acc.length - 1].authorUserName !== chat.authorUserName) {
       const newGroup = {
-        id: el.id,
-        them: el.them,
-        author: el.author,
-        messages: [el.message]
+        authorId: chat.authorId,
+        writtenByMe: chat.writtenByMe,
+        authorUserName: chat.authorUserName,
+        messages: [{
+          message: chat.message,
+          key: chat.messageId
+        }]
       }
       acc.push(newGroup)
     } else {
-      acc[acc.length - 1].messages.push(el.message)
+      acc[acc.length - 1].messages.push({
+        message: chat.message,
+        key: chat.messageId
+      })
     }
     return acc
   }, [])
@@ -24,11 +30,13 @@ export const groupChats = (chats) => {
 
 export const chatsToJsx = (groupedChats) => {
   return groupedChats.map((chat) => (
-    <Chat them={chat.them}>
-      <ChatMessageProfile>{chat.author}</ChatMessageProfile>
+    <Chat them={!chat.writtenByMe}>
+      <ChatMessageProfile>{chat.authorUserName}</ChatMessageProfile>
       <ChatMessage>
       {
-        chat.messages.map((msg) => (<WordsWrapper>{msg}</WordsWrapper>))
+        chat.messages.map(({ key, message }) => (
+          <WordsWrapper key={key}>{message}</WordsWrapper>
+        ))
       }
       </ChatMessage>
     </Chat>

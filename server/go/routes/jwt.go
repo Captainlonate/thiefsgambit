@@ -12,6 +12,7 @@ import (
 type TokenClaims struct {
 	Uuid     uint   `json:"uuid"`
 	Username string `json:"username"`
+	IsElite  bool   `json:"iselite"`
 	Email    string `json:"email"`
 	Exp      int64
 	jwt.StandardClaims
@@ -21,10 +22,11 @@ func JWTKeyFunction(token *jwt.Token) (interface{}, error) {
 	return []byte(os.Getenv("JWT_SIGN_KEY")), nil
 }
 
-func CreateUnsignedToken(userId uint, username string, email string, expires int64) *jwt.Token {
+func CreateUnsignedToken(userId uint, username string, isElite bool, email string, expires int64) *jwt.Token {
 	return jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
 		Uuid:     userId,
 		Username: username,
+		IsElite:  isElite,
 		Email:    email,
 		Exp:      expires,
 	})

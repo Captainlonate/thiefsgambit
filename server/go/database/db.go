@@ -30,20 +30,25 @@ func ConnectToDB() {
 	}
 	log.Println("Connected to database")
 
+	DBConn.AutoMigrate(&User{}, &SlotsData{}, &ChatRoom{}, &ChatMessage{})
+	// InsertNewChatMessage(1, 1, "Second message!")
+	// Seed()
+}
+
+func Seed() {
 	// Clear the database
 	DBConn.Migrator().DropTable(&User{})
 	DBConn.Migrator().DropTable(&SlotsData{})
+	DBConn.Migrator().DropTable(&ChatRoom{})
+	DBConn.Migrator().DropTable(&ChatMessage{})
 
 	// Migrate Tables
 	DBConn.AutoMigrate(&User{}, &SlotsData{}, &ChatRoom{}, &ChatMessage{})
 
-	// Seed
-	// $2a$10$h1HzFggkwXMHDmq7eYfYy.kvLmkfFDufD/r0H99hmVmVVmpHOiG1S
-
 	// User
 	InsertNewUser(&User{
-		Username:       "testuser",
-		Email:          "test@email.com",
+		Username:       "Captainlonate",
+		Email:          "captainlonate@email.com",
 		HashedPassword: HashAndSaltPassword("P@ssword"),
 		IsElite:        true,
 		SlotsData: SlotsData{
@@ -52,4 +57,76 @@ func ConnectToDB() {
 		},
 	})
 
+	InsertNewUser(&User{
+		Username:       "ktell10",
+		Email:          "kathy@email.com",
+		HashedPassword: HashAndSaltPassword("P@ssword"),
+		IsElite:        true,
+		SlotsData: SlotsData{
+			FreeSpins: 0,
+			Coins:     2400,
+		},
+	})
+
+	InsertNewUser(&User{
+		Username:       "rratliff",
+		Email:          "regina@email.com",
+		HashedPassword: HashAndSaltPassword("P@ssword"),
+		IsElite:        true,
+		SlotsData: SlotsData{
+			FreeSpins: 0,
+			Coins:     2400,
+		},
+	})
+
+	InsertNewUser(&User{
+		Username:       "averagejoe",
+		Email:          "averagejoe@email.com",
+		HashedPassword: HashAndSaltPassword("P@ssword"),
+		IsElite:        false,
+		SlotsData: SlotsData{
+			FreeSpins: 0,
+			Coins:     2400,
+		},
+	})
+
+	// Chat Rooms
+
+	InsertNewChatroom(&ChatRoom{
+		RoomName:  "Círculo del Capitán",
+		EliteOnly: true,
+	})
+
+	InsertNewChatroom(&ChatRoom{
+		RoomName:  "Pirate Legends",
+		EliteOnly: false,
+	})
+
+	InsertNewChatroom(&ChatRoom{
+		RoomName:  "Mischief Makers",
+		EliteOnly: false,
+	})
+
+	InsertNewChatroom(&ChatRoom{
+		RoomName:  "Commodity Kings",
+		EliteOnly: false,
+	})
+
+	InsertNewChatroom(&ChatRoom{
+		RoomName:  "Fortune Finders",
+		EliteOnly: false,
+	})
+
+	InsertNewChatroom(&ChatRoom{
+		RoomName:  "Cash Stashers",
+		EliteOnly: false,
+	})
+
+	// Insert initial chat messages
+	InsertNewChatMessage(1, 1, "Welcome Mateys!")
+	InsertNewChatMessage(2, 1, "Welcome Mateys!")
+	InsertNewChatMessage(3, 1, "Welcome Mateys!")
+	InsertNewChatMessage(4, 1, "Welcome Mateys!")
+	InsertNewChatMessage(5, 1, "Welcome Mateys!")
+	InsertNewChatMessage(6, 1, "Welcome Mateys!")
 }
