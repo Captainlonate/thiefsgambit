@@ -1,20 +1,14 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faArrowCircleLeft, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { useRef, useEffect, useState } from 'react'
+import SidebarHeader from '../../SidebarHeader'
 import { groupChats, chatsToJsx } from './utils'
-import { getRecentChatsForRoom, getChatRooms } from '../../../Network/chat'
+import { getRecentChatsForRoom, getChatRooms } from '../../../../Network/chat'
+import { ChatSidebarWrapper, ChatSection } from '../styles'
 import {
-  ChatSidebarWrapper,
-  SidebarHeader,
-  ChatSection,
   InputSection,
-  CloseButton,
-  HeaderText,
   MessageTextArea,
   SendMessageBtn,
   InputSectionLeft,
   InputSectionRight,
-  BackButton,
 } from './styles'
 
 const ChatRoomChat = ({ onBack, onOpenToggle, chatRoom: { chatRoomId, chatRoomName } }) => {

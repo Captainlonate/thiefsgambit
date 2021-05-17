@@ -1,28 +1,17 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTimes } from '@fortawesome/free-solid-svg-icons'
-import { useChatContext } from '../../context/chat/index'
-import {
-  ChatSidebarWrapper,
-  SidebarHeader,
-  ChatSection,
-  InputSection,
-  CloseButton,
-  HeaderText,
-  MessageTextArea,
-  SendMessageBtn,
-  InputSectionLeft,
-  InputSectionRight,
-} from './styles'
+import { useChatContext } from '../../../context/chat/index'
+import SidebarHeader from '../../SidebarHeader'
+import { ChatSidebarWrapper, ChatSection } from '../styles'
 
 const ChatRoomsList = ({ onOpenToggle, onChatRoomJoin }) => {
   const [chatContext, setChatContext] = useChatContext()
+  const haveRoomsToDisplay = (!chatContext.loadingChatRooms && chatContext.chatRooms.length > 0)
 
   return (
     <ChatSidebarWrapper>
       <SidebarHeader titleText='Chat Rooms' onOpenToggle={onOpenToggle} />
       <ChatSection>
         {
-          (!chatContext.loadingChatRooms && chatContext.chatRooms.length > 0)
+          (haveRoomsToDisplay)
             ? (
               chatContext.chatRooms.map((chatRoom) => (
                 <div key={chatRoom.chatRoomId}>
