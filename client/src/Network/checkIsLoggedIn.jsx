@@ -23,36 +23,36 @@ export const CheckIsLoggedIn = async () => {
     3) reCheckLoggedIn - Function that do another network call
       to check again.
 */
-export const withIsLoggedIn = (WrappedComponent) => {
-  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
+// export const withIsLoggedIn = (WrappedComponent) => {
+//   const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component'
 
-  const ComponentWithLoggedIn = (props) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
+//   const ComponentWithLoggedIn = (props) => {
+//     const [isLoggedIn, setIsLoggedIn] = useState(false)
+//     const [isLoading, setIsLoading] = useState(false)
 
-    const checkIfLoggedIn = async () => {
-      setIsLoading(true)
-      const answerIfLoggedIn = await CheckIsLoggedIn()
-      console.log('answerIfLoggedIn', answerIfLoggedIn)
-      setIsLoggedIn(answerIfLoggedIn)
-      setIsLoading(false)
-    }
+//     const checkIfLoggedIn = async () => {
+//       setIsLoading(true)
+//       const answerIfLoggedIn = await CheckIsLoggedIn()
+//       console.log('answerIfLoggedIn', answerIfLoggedIn)
+//       setIsLoggedIn(answerIfLoggedIn)
+//       setIsLoading(false)
+//     }
 
-    useEffect(() => {
-      checkIfLoggedIn()
-    }, [])
+//     useEffect(() => {
+//       checkIfLoggedIn()
+//     }, [])
 
-    return (
-      <WrappedComponent
-        refetch={checkIfLoggedIn}
-        isLoggedIn={isLoggedIn}
-        isLoading={isLoading}
-        {...props}
-      />
-    )
-  }
+//     return (
+//       <WrappedComponent
+//         refetch={checkIfLoggedIn}
+//         isLoggedIn={isLoggedIn}
+//         isLoading={isLoading}
+//         {...props}
+//       />
+//     )
+//   }
 
-  ComponentWithLoggedIn.displayName = `withIsLoggedIn(${displayName})`
+//   ComponentWithLoggedIn.displayName = `withIsLoggedIn(${displayName})`
 
-  return ComponentWithLoggedIn
-}
+//   return ComponentWithLoggedIn
+// }

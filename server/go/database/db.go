@@ -29,5 +29,27 @@ func ConnectToDB() {
 		log.Fatalln("Could not connect to the database.")
 	}
 	log.Println("Connected to database")
-	DBConn.AutoMigrate(&User{}, &SlotsData{})
+
+	// Clear the database
+	DBConn.Migrator().DropTable(&User{})
+	DBConn.Migrator().DropTable(&SlotsData{})
+
+	// Migrate Tables
+	DBConn.AutoMigrate(&User{}, &SlotsData{}, &ChatRoom{}, &ChatMessage{})
+
+	// Seed
+	// $2a$10$h1HzFggkwXMHDmq7eYfYy.kvLmkfFDufD/r0H99hmVmVVmpHOiG1S
+
+	// User
+	InsertNewUser(&User{
+		Username:       "testuser",
+		Email:          "test@email.com",
+		HashedPassword: HashAndSaltPassword("P@ssword"),
+		IsElite:        true,
+		SlotsData: SlotsData{
+			FreeSpins: 0,
+			Coins:     2400,
+		},
+	})
+
 }

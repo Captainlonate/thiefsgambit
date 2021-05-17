@@ -11,15 +11,13 @@ import (
 )
 
 type SignUpInputModel struct {
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (model *SignUpInputModel) TrimFields() {
-	model.Firstname = strings.TrimSpace(model.Firstname)
-	model.Lastname = strings.TrimSpace(model.Lastname)
+	model.Username = strings.TrimSpace(model.Username)
 	model.Email = strings.TrimSpace(model.Email)
 	model.Password = strings.TrimSpace(model.Password)
 }
@@ -73,8 +71,7 @@ func HandleSignup(c *fiber.Ctx) error {
 
 	// Create new user
 	userToAdd := db.User{
-		Firstname:      signupCredentials.Firstname,
-		Lastname:       signupCredentials.Lastname,
+		Username:       signupCredentials.Username,
 		Email:          signupCredentials.Email,
 		HashedPassword: db.HashAndSaltPassword(signupCredentials.Password),
 		SlotsData: db.SlotsData{
@@ -100,13 +97,8 @@ func ValidateSignupStruct(signupModel *SignUpInputModel) []string {
 	errors := []string{}
 
 	// First name
-	if !ValidateStringLength(signupModel.Firstname, 3, 40) {
+	if !ValidateStringLength(signupModel.Username, 3, 40) {
 		errors = append(errors, "Firstname is required.")
-	}
-
-	// Last name
-	if !ValidateStringLength(signupModel.Lastname, 3, 40) {
-		errors = append(errors, "Lastname is required.")
 	}
 
 	// Email

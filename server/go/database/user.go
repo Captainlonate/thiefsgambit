@@ -39,6 +39,27 @@ func GetUserByEmail(emailAddress string) (*User, error) {
 }
 
 /*
+	Query the database for a user based on their unique email address.
+	Either returns the located User object, or nil if it couldn't be found.
+	If the query fails, returns an error.
+*/
+func GetUserByUsername(username string) (*User, error) {
+	existingUsers := []User{}
+
+	err := DBConn.Limit(1).Where("username = ?", username).Find(&existingUsers).Error
+	if err != nil {
+		log.Printf("GetUserByUsername::Could not query for\n'%s'\n%s\n", username, err)
+		return nil, err
+	}
+
+	if len(existingUsers) > 0 {
+		return &existingUsers[0], nil
+	}
+
+	return nil, nil
+}
+
+/*
 	Given a User object, first checks if the user is already
 	in the database (by looking at email). Returns an error
 	if the user is already in the database. Otherwise,

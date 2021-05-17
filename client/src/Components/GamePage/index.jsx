@@ -11,8 +11,6 @@ const GamePage = () => {
   const gameMountPointRef = useRef(null)
   const [game, setGame] = useState(null)
 
-  console.log('GamePage Render')
-
   // The DOM will not immediately update the
   // size of the container. So this it's necessary to let
   // the dom update, before recalculating the dimensions

@@ -16,8 +16,23 @@ const mockMessages = [
   { id: '14', them: true, author: 'Regina', message: 'Morning' },
 ]
 
-export const getRecentChatsForRoom = () => {
-  return new Promise((resolve, reject) => {
-    resolve(mockMessages)
+export const getRecentChatsForRoom = async ({ roomId }) => {
+  const url = `${process.env.REACT_APP_URL_CHAT_GETRECENT}/${roomId}`
+  const response = await window.fetch(url, {
+    method: 'GET',
+    credentials: 'include'
   })
+
+  if (response.ok) {
+    const { success, error, data } = await response.json()
+    if (success) {
+      console.log('getRecentChatsForRoom; Recent Chats', data)
+      return data
+    }
+    console.log('getRecentChatsForRoom: Server responded with success false.', error)
+  } else {
+    console.error('getRecentChatsForRoom: Response was not ok. Something is wrong.')
+  }
+
+  return []
 }
