@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
-import App from '../../SlotsGame/App'
+import SlotsGame from '../../SlotsGame/SlotsGame'
 import SidebarContainer from '../Sidebar/SidebarContainer'
 import {
   GamePageWrapper,
@@ -24,7 +24,7 @@ const GamePage = () => {
 
   useEffect(() => {
     console.log('Mounting', Date.now())
-    const gameApp = new App({
+    const gameApp = new SlotsGame({
       mountAt: gameMountPointRef.current
     })
     setGame(gameApp)

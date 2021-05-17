@@ -1,13 +1,14 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faComment } from '@fortawesome/free-solid-svg-icons'
 import { SidebarItem, ClosedSidebarWrapper } from './styles'
 
 const ClosedSidebar = ({ onOpenToggle }) => {
 
   return (
     <ClosedSidebarWrapper>
-      <SidebarItem onClick={onOpenToggle}>&lt;--</SidebarItem>
-      <SidebarItem>A</SidebarItem>
-      <SidebarItem>B</SidebarItem>
-      <SidebarItem>C</SidebarItem>
+      <SidebarItem onClick={onOpenToggle}>
+        <FontAwesomeIcon icon={faComment} />
+      </SidebarItem>
     </ClosedSidebarWrapper>
   )
 }

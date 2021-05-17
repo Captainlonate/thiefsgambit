@@ -11,3 +11,9 @@ exports.makeFailedResponse = (errorCode, message, err = null) => ({
   },
   data: null
 })
+
+exports.makeSuccessResponse = (data) => ({
+  success: true,
+  error: null,
+  data
+})

@@ -20,7 +20,7 @@ import Logger from './Logger'
     (like the horizontal black lines around a movie).
     So I center the MainScene between the black space.
 */
-class App {
+class SlotsGame {
   pixiApp;
   logicalUnits = { width: 0, height: 0 };
   loader;
@@ -122,4 +122,4 @@ class App {
   }
 }
 
-export default App
+export default SlotsGame

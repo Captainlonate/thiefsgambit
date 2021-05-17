@@ -1,4 +1,6 @@
 import styled from 'styled-components'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faArrowCircleLeft, faTimesCircle, faDoorClosed, faDoorOpen } from '@fortawesome/free-solid-svg-icons'
 
 export const ChatSidebarWrapper = styled.div`
   display: flex;
@@ -9,14 +11,26 @@ export const ChatSidebarWrapper = styled.div`
   font-family: freebooter_updated;
 `
 
-export const CloseSection = styled.div`
+export const HeaderBar = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5em 2em;
+  padding: 0.5em 1em;
   border-bottom: 2px solid #b8fda3;
 `
+
+export const SidebarHeader = ({ onBack, titleText, onOpenToggle }) => (
+  <HeaderBar>
+    {
+      (typeof onBack === 'function') && <BackButton onClick={onBack} />
+    }
+    <HeaderText>{titleText}</HeaderText>
+    {
+      (typeof onOpenToggle === 'function') && <CloseButton onClick={onOpenToggle} />
+    }
+  </HeaderBar>
+)
 
 export const ChatSection = styled.div`
   flex: 1;
@@ -26,32 +40,55 @@ export const ChatSection = styled.div`
   font-size: 1.2em;
 `
 
-export const CloseButton = styled.div`
-  width: 2em;
-  height: 2em;
+export const CloseButtonStyles = styled.div`
   border-radius: 50%;
-  color: #0f3b50;
-  background-color: #baffa4;
   cursor: pointer;
+  color: white;
   display: flex;
   justify-content: center;
   align-items: center;
-  i {
+  transition: color 0.25s linear;
+  & > svg {
     font-size: 2em;
-    font-style: normal;
-    font-weight: bold;
   }
   &:hover {
-    color: #baffa4;
-    background-color: #185977;
+    color: #b8fda3;
   }
 `
 
-export const ChatHeader = styled.h5`
+export const CloseButton = ({ onClick }) => (
+  <CloseButtonStyles onClick={onClick}>
+    <FontAwesomeIcon icon={faTimesCircle} />
+  </CloseButtonStyles>
+)
+
+export const HeaderText = styled.h5`
   margin: 0;
   font-size: 2em;
   letter-spacing: 1px;
 `
+
+export const BackButtonStyles = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+  transition: color 0.25s linear;
+
+  & > svg {
+    font-size: 2.2em;
+  }
+
+  &:hover {
+    color: #b8fda3;
+  }
+`
+
+export const BackButton = ({ onClick }) => (
+  <BackButtonStyles onClick={onClick}>
+    <FontAwesomeIcon icon={faArrowCircleLeft} />
+  </BackButtonStyles>
+)
 
 export const ChatMessage = styled.div`
   background-color: #185977;

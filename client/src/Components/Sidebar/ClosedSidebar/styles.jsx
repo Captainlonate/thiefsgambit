@@ -21,4 +21,8 @@ export const SidebarItem = styled.div`
   justify-content: center;
   align-items: center;
   cursor: pointer;
+
+  & > svg {
+    font-size: 1.75em;
+  }
 `

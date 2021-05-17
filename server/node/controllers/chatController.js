@@ -1,5 +1,6 @@
 const db = require('../database')
 const { getMessagesForRoomQuery } = require('../queries/chatMessages')
+const { makeSuccessResponse } = require('./responseUtils')
 const {
   getAllChatRooms,
   getAllCommonChatRooms
@@ -28,6 +29,7 @@ const prepareChatsForResponse = (chats, currentUserId) => (
 */
 exports.getChatsForRoom = (req, res) => {
   const roomId = req.params.roomId
+  const userId = res.locals.userId // typeof number
 
   db.query(getMessagesForRoomQuery, [roomId], (error, results) => {
     if (error) {
@@ -43,11 +45,8 @@ exports.getChatsForRoom = (req, res) => {
       })
     }
 
-    return res.json({
-      success: true,
-      error: null,
-      data: prepareChatsForResponse(results.rows, res.locals.userId)
-    })
+    const preparedChatMessages = prepareChatsForResponse(results.rows, userId)
+    return res.json(makeSuccessResponse(preparedChatMessages))
   })
 }
 
@@ -60,7 +59,7 @@ exports.getChatsForRoom = (req, res) => {
   which will be stored in res.locals.isElite
 */
 exports.getChatRooms = (req, res) => {
-  // This will be a typeof boolean
+  // res.locals.isElite will be a typeof boolean
   const userIsElite = res.locals.isElite
 
   const roomsQuery = userIsElite ? getAllChatRooms : getAllCommonChatRooms
@@ -79,10 +78,6 @@ exports.getChatRooms = (req, res) => {
       })
     }
 
-    return res.json({
-      success: true,
-      error: null,
-      data: results.rows
-    })
+    return res.json(makeSuccessResponse(results.rows))
   })
 }
