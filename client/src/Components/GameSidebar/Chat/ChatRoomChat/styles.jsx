@@ -1,5 +1,13 @@
 import styled from 'styled-components'
 
+export const ChatMessagesBody = styled.div`
+  flex: 1;
+  overflow-y: auto;
+  flex-direction: column;
+  justify-content: end;
+  font-size: 1.2em;
+`
+
 export const ChatMessage = styled.div`
   background-color: #185977;
   border-radius: 5px;

@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import SlotsGame from '../../SlotsGame/SlotsGame'
-import SidebarContainer from '../Sidebar/SidebarContainer'
+import GameSidebar from '../GameSidebar'
 import {
   GamePageWrapper,
   GameAndMenuContainer,
@@ -35,7 +35,7 @@ const GamePage = () => {
     <GamePageWrapper>
       <GameAndMenuContainer>
         <GameContainer ref={gameMountPointRef} />
-        <SidebarContainer onToggleOpen={onToggleSidebar} />
+        <GameSidebar onToggleOpen={onToggleSidebar} />
       </GameAndMenuContainer>
     </GamePageWrapper>
   )

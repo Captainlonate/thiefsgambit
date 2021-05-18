@@ -2,7 +2,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
-import AppComponent from './Components/AppComponent'
+import AppComponent from './components/AppComponent'
 
 const mountNode = document.getElementById('root')
 

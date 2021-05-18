@@ -1,6 +1,8 @@
 import { useChatContext } from '../../../context/chat/index'
 import SidebarHeader from '../../SidebarHeader'
-import { ChatSidebarWrapper, ChatSection } from '../styles'
+import { ChatSidebarWrapper } from '../styles'
+import ChatRoomListing from './ChatRoomListing'
+import { ChatRoomsBody } from './styles'
 
 const ChatRoomsList = ({ onOpenToggle, onChatRoomJoin }) => {
   const [chatContext, setChatContext] = useChatContext()
@@ -9,15 +11,16 @@ const ChatRoomsList = ({ onOpenToggle, onChatRoomJoin }) => {
   return (
     <ChatSidebarWrapper>
       <SidebarHeader titleText='Chat Rooms' onOpenToggle={onOpenToggle} />
-      <ChatSection>
+      <ChatRoomsBody>
         {
           (haveRoomsToDisplay)
             ? (
               chatContext.chatRooms.map((chatRoom) => (
-                <div key={chatRoom.chatRoomId}>
-                  <div>{chatRoom.chatRoomName}</div>
-                  <div><button onClick={() => onChatRoomJoin(chatRoom)}>Join</button></div>
-                </div>
+                <ChatRoomListing 
+                  key={chatRoom.chatRoomId}
+                  chatRoomName={chatRoom.chatRoomName}
+                  onClickJoin={() => onChatRoomJoin(chatRoom)}
+                />
               ))
             )
             : (
@@ -26,7 +29,7 @@ const ChatRoomsList = ({ onOpenToggle, onChatRoomJoin }) => {
               </div>
             )
         }
-      </ChatSection>
+      </ChatRoomsBody>
     </ChatSidebarWrapper>
   )
 }

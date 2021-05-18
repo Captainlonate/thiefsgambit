@@ -1,19 +1,19 @@
 import { useState, useEffect } from 'react'
-import ChatSidebar from '../Chat'
-import ClosedSidebar from '../ClosedSidebar'
-import { SidebarContainerWrapper } from './styles'
-import { ChatProvider, useChatContext } from '../../context/chat/index'
-import { getChatRooms } from '../../../Network/chat'
+import ChatSidebar from './Chat'
+import ClosedSidebar from './ClosedSidebar'
+import { GameSidebarWrapper } from './styles'
+import { ChatProvider, useChatContext } from '../context/chat/index'
+import { getChatRooms } from '../../Network/chat'
 
 /*
-  The sidebar shell next to the game screen.
+  The Game Sidebar next to the game screen.
   Can be closed or open, and if open can contain
   one of many types of Sub/children sidebars.
   For instance, when opened, the SidebarContainer might
   wrap the ChatSidebar, which in turn might display a list
   of chat rooms, or current chat messages within a single room.
 */
-const SidebarContainer = ({ onToggleOpen }) => {
+const GameSidebar = ({ onToggleOpen }) => {
   const [menuOpen, setMenuOpen] = useState(false)
   const [, setChatContext] = useChatContext()
 
@@ -33,20 +33,20 @@ const SidebarContainer = ({ onToggleOpen }) => {
   }, [])
 
   return (
-    <SidebarContainerWrapper open={menuOpen}>
+    <GameSidebarWrapper open={menuOpen}>
       {
         menuOpen
           ? <ChatSidebar onOpenToggle={toggleMenuOpen} />
           : <ClosedSidebar onOpenToggle={toggleMenuOpen} />
       }
-    </SidebarContainerWrapper>
+    </GameSidebarWrapper>
   )
 }
 
-const SidebarWithProvider = (props) => (
+const GameSidebarWithProvider = (props) => (
   <ChatProvider>
-    <SidebarContainer {...props} />
+    <GameSidebar {...props} />
   </ChatProvider>
 )
 
-export default SidebarWithProvider
+export default GameSidebarWithProvider

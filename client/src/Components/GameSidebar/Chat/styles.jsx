@@ -8,11 +8,3 @@ export const ChatSidebarWrapper = styled.div`
   color: #baffa4;
   font-family: freebooter_updated;
 `
-
-export const ChatSection = styled.div`
-  flex: 1;
-  overflow-y: auto;
-  flex-direction: column;
-  justify-content: end;
-  font-size: 1.2em;
-`

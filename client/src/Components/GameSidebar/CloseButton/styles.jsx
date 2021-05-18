@@ -1,7 +1,6 @@
 import styled from 'styled-components'
 
 export const CloseButtonStyles = styled.div`
-  border-radius: 50%;
   cursor: pointer;
   color: white;
   display: flex;
