@@ -1,10 +1,13 @@
+export const NULL_CHATROOM = { chatRoomId: null, chatRoomName: '' }
+
 // This is the initial state of the Chat reducer, provided
 // by the ChatProvider
 export const initialChatContextState = {
   chatRooms: [], // [{ chatRoomId: '1', chatRoomName: 'Name' }, ...]
-  activeChatRoomId: null, // '1'
+  activeChatRoom: { ...NULL_CHATROOM }, // { chatRoomId: '1', chatRoomName: 'Name' 
   loadingChatRooms: true, // true | false
-  groupedChatMessages: {} // { roomId1: [], roomId2: [], ... }
+  chatMessagesForRoom: [],
+  viewingChats: false // true | false
 }
 
 // This reducer is used in conjuction with a context.
@@ -17,6 +20,29 @@ const chatReducer = (state, { type, payload }) => {
         ...state,
         chatRooms: Array.isArray(payload) ? payload : [],
         loadingChatRooms: false
+      }
+    case 'SET_ACTIVE_CHATROOM':
+      return {
+        ...state,
+        activeChatRoom: { ...payload },
+      }
+    case 'SET_CHAT_ROOM_MESSAGES':
+      return {
+        ...state,
+        chatMessagesForRoom: Array.isArray(payload) ? [...payload] : state.chatMessagesForRoom
+      }
+    case 'SET_VIEWING_CHATS':
+      return {
+        ...state,
+        viewingChats: payload
+      }
+    case 'ADD_CHAT_MESSAGE':
+      return {
+        ...state,
+        chatMessagesForRoom: [
+          ...state.chatMessagesForRoom,
+          payload
+        ]
       }
     default:
       return state

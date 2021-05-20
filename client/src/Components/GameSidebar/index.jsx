@@ -4,6 +4,7 @@ import ClosedSidebar from './ClosedSidebar'
 import { GameSidebarWrapper } from './styles'
 import { ChatProvider, useChatContext } from '../context/chat/index'
 import { getChatRooms } from '../../Network/chat'
+import { socketConnection } from '../context/socket'
 
 /*
   The Game Sidebar next to the game screen.
@@ -25,10 +26,16 @@ const GameSidebar = ({ onToggleOpen }) => {
   }
 
   useEffect(() => {
-    getChatRooms()
-      .then((chatRooms) => {
-        setChatContext({ type: 'UPDATE_CHATROOMS_LIST', payload: chatRooms })
-      })
+    // Retrieve the list of chatrooms and display them
+    getChatRooms().then((chatRooms) => {
+      setChatContext({ type: 'UPDATE_CHATROOMS_LIST', payload: chatRooms })
+    })
+    
+    // Listen for new chat messages and add them to the room
+    socketConnection.on('chat_room_message', (newChatMessage) => {
+      console.log('Received a new chat message', newChatMessage)
+      setChatContext({ type: 'ADD_CHAT_MESSAGE', payload: newChatMessage })
+    })
     // eslint-disable-next-line
   }, [])
 

@@ -80,15 +80,18 @@ export const MessageTextArea = styled.textarea`
 `
 
 export const SendMessageBtn = styled.button`
-  width: 3em;
-  height: 3em;
+  width: 3.5em;
+  height: 3.5em;
   background-color: #0f3b50;
   color: #baffa4;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  & > span {
-    font-size: 1.5em;
-    font-weight: bold;
+  transition: color 0.25s linear;
+  & > svg {
+    font-size: 2em;
+  }
+  &:hover {
+    color: #3bd1ff;
   }
 `

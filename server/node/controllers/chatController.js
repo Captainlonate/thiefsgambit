@@ -1,28 +1,11 @@
 const db = require('../database')
 const { getMessagesForRoomQuery } = require('../queries/chatMessages')
 const { makeSuccessResponse } = require('./responseUtils')
+const { prepareChatsForResponse } = require('../database/chatDbUtils')
 const {
   getAllChatRooms,
   getAllCommonChatRooms
 } = require('../queries/chatRooms')
-
-/*
-  Given a list of ChatMessage records from the database and
-  the active user's ID (the person making the request),
-  translate each database record into an object which
-  will be returned to the API's requestor as-is.
-*/
-const prepareChatsForResponse = (chats, currentUserId) => (
-  chats.map((chat) => ({
-    messageId: chat.messageId,
-    authorId: chat.authorId,
-    chatRoomId: chat.chatRoomId,
-    message: (typeof chat.message === 'string') ? chat.message.trim() : '[Message Not Found]',
-    timestamp: chat.timestamp,
-    authorUserName: chat.authorUserName,
-    writtenByMe: chat.authorId.toString() === currentUserId.toString()
-  }))
-)
 
 /*
   Get recent chats for a specific chat room

@@ -5,7 +5,7 @@ import ChatRoomListing from './ChatRoomListing'
 import { ChatRoomsBody } from './styles'
 
 const ChatRoomsList = ({ onOpenToggle, onChatRoomJoin }) => {
-  const [chatContext, setChatContext] = useChatContext()
+  const [chatContext] = useChatContext()
   const haveRoomsToDisplay = (!chatContext.loadingChatRooms && chatContext.chatRooms.length > 0)
 
   return (

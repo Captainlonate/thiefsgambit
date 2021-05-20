@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import SlotsGame from '../../SlotsGame/SlotsGame'
 import GameSidebar from '../GameSidebar'
+import { SocketProvider, socketConnection } from '../context/socket'
 import {
   GamePageWrapper,
   GameAndMenuContainer,
@@ -41,4 +42,12 @@ const GamePage = () => {
   )
 }
 
-export default GamePage
+const GamePageWithSocket = (props) => {
+  return (
+    <SocketProvider initialValue={socketConnection}>
+      <GamePage {...props} />
+    </SocketProvider>
+  )
+}
+
+export default GamePageWithSocket

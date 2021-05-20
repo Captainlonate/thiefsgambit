@@ -1,7 +1,9 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useLayoutEffect } from 'react'
 import SidebarHeader from '../../SidebarHeader'
-import { groupChats, chatsToJsx } from './utils'
-import { getRecentChatsForRoom, getChatRooms } from '../../../../Network/chat'
+import { chatsToJsx } from './utils'
+import { socketConnection } from '../../../context/socket'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCommentDots } from '@fortawesome/free-solid-svg-icons'
 import { ChatSidebarWrapper } from '../styles'
 import {
   InputSection,
@@ -12,20 +14,29 @@ import {
   ChatMessagesBody,
 } from './styles'
 
-const ChatRoomChat = ({ onBack, onOpenToggle, chatRoom: { chatRoomId, chatRoomName } }) => {
-  const chatsListEl = useRef(null)
-  const [groupedChats, setChats] = useState([])
+const handleMessageSubmit = (chatRoomId, typedText, setTypedText) => () => {
+  const trimmed = typedText.trim()
+  if (trimmed.length === 0) {
+    console.log('Message is empty')
+  } else {
+    console.log('Submitting....', trimmed)
+    // Submit to server
+    socketConnection.emit('new_chat_message', {
+      chatRoomId,
+      message: typedText
+    })
+    setTypedText('')
+  }
+}
 
-  useEffect(() => {
-    getRecentChatsForRoom({ roomId: chatRoomId })
-      .then((chats) => {
-        // Most recent chats are first, so they must be reversed
-        setChats(groupChats(chats.reverse()))
-      })
+const ChatRoomChat = ({ onBack, onOpenToggle, groupedChats, chatRoom: { chatRoomId, chatRoomName } }) => {
+  const chatsListEl = useRef(null)
+  const [typedText, setTypedText] = useState('')
+
+  useLayoutEffect(() => {
     const el = chatsListEl.current
     el.scrollTo(0, el.scrollHeight - el.clientHeight)
-    // eslint-disable-next-line
-  }, [])
+  }, [groupedChats])
 
   return (
     <ChatSidebarWrapper>
@@ -39,10 +50,17 @@ const ChatRoomChat = ({ onBack, onOpenToggle, chatRoom: { chatRoomId, chatRoomNa
             maxLength={200}
             rows='1'
             placeholder='Chat with your friends'
+            value={typedText}
+            onChange={(e) => setTypedText(e.target.value)}
           />
         </InputSectionLeft>
         <InputSectionRight>
-          <SendMessageBtn><span>&gt;</span></SendMessageBtn>
+          <SendMessageBtn
+            onClick={handleMessageSubmit(chatRoomId, typedText, setTypedText)}
+            disabled={typedText.trim().length === 0}
+          >
+            <FontAwesomeIcon icon={faCommentDots} />
+          </SendMessageBtn>
         </InputSectionRight>
       </InputSection>
     </ChatSidebarWrapper>

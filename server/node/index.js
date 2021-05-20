@@ -7,6 +7,13 @@ const cors = require('cors')
 const cookieParser = require('cookie-parser')
 // Routes for express
 const chatRoutes = require('./routes/chat')
+// SocketIO Dependencies - middleware, utils and handlers
+const http = require('http')
+const { Server } = require('socket.io')
+const { socketIOJWTMiddleware } = require('./socketIOHandlers/jwtMiddleware')
+const { parseJWTSocketIO } = require('./socketIOHandlers/handlerUtils')
+const socketHandleJoinChatRoom = require('./socketIOHandlers/joinChatRoom')
+const socketHandleNewChatMessage = require('./socketIOHandlers/newChatMessage')
 
 // Task Manager, terminal tab title
 process.title = "Thief's Gambit Chat"
@@ -21,8 +28,25 @@ app.use(cookieParser())
 // Routes
 app.use('/chats', chatRoutes)
 
+// Set up SocketIO
+const server = http.createServer(app)
+const io = new Server(server, {
+  cors: {
+    origin: ['http://localhost:3000'],
+    credentials: true
+  }
+})
+io.use(socketIOJWTMiddleware)
+
+// io.of('/').adapter.rooms - A Map of chatRoomName -> { sockets in the room }
+io.on('connection', (socket) => {
+  const { userData } = parseJWTSocketIO(socket)
+  socketHandleJoinChatRoom(io, socket, userData)
+  socketHandleNewChatMessage(io, socket, userData)
+})
+
 // Start express
 const EXPRESS_PORT = 3002
-app.listen(EXPRESS_PORT, () => {
+server.listen(EXPRESS_PORT, () => {
   console.log(`Example app listening at http://localhost:${EXPRESS_PORT}`)
 })
