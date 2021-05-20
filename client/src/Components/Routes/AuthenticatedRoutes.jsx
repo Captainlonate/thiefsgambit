@@ -4,7 +4,6 @@ import {
   Route,
   Redirect
 } from "react-router-dom"
-import HomePage from '../HomePage'
 import GamePage from '../GamePage'
 
 const AuthenticatedRoutes = () => {
@@ -14,9 +13,6 @@ const AuthenticatedRoutes = () => {
         <Route path="/play">
           <GamePage />
         </Route>
-        {/* <Route path="/">
-          <HomePage />
-        </Route> */}
         <Redirect to='/play' />
       </Switch>
     </Router>

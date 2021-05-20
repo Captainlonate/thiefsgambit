@@ -1,0 +1,5 @@
+*.md
+example.env.txt
+.vscode
+.git
+.cache

@@ -6,30 +6,44 @@ import AuthenticatedRoutes from './AuthenticatedRoutes'
 import UnAuthenticatedRoutes from './UnAuthenticatedRoutes'
 
 const Routes = () => {
-  const { loggedIn, updateLoggedIn } = useContext(AuthContext)
+  const { loggedInState, updateLoggedIn } = useContext(AuthContext)
 
   useEffect(() => {
-    getInitialLogInState(loggedIn, updateLoggedIn)
+    getInitialLogInState(updateLoggedIn)
     // eslint-disable-next-line
   }, [])
 
-  if (!loggedIn.initialLoad) {
-    return <LoadingPage />
+  if (!loggedInState.initialLoad) {
+    return <LoadingPage text='Loading...' />
+  } else if (loggedInState.errorMessage) {
+    return <LoadingPage text={loggedInState.errorMessage} />
   }
 
-  return loggedIn.isLoggedIn
+  return loggedInState.isLoggedIn
     ? <AuthenticatedRoutes />
     : <UnAuthenticatedRoutes />
 }
 
-const getInitialLogInState = async (loggedIn, updateLoggedIn) => {
-  const isLoggedIn = await CheckIsLoggedIn()
-  updateLoggedIn({
-    ...loggedIn,
-    initialLoad: true,
-    isLoggedIn,
-    loading: false
-  })
+// Does a network call to check if a user is logged in based on their cookies
+// Then calls the (useState) callback function to update the state.
+const getInitialLogInState = async (updateLoggedIn) => {
+  try {
+    const isLoggedIn = await CheckIsLoggedIn()
+    updateLoggedIn({
+      initialLoad: true,
+      isLoggedIn,
+      loading: false,
+      errorMessage: ''
+    })
+  } catch (ex) {
+    console.log('Error when checking if logged in to server.', ex)
+    updateLoggedIn({
+      initialLoad: true,
+      isLoggedIn: false,
+      loading: false,
+      errorMessage: 'Could not reach the server.'
+    })
+  }
 }
 
 export default Routes
