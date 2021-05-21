@@ -76,9 +76,9 @@ typings/
 !example.env
 
 #
-certs/*.cert
-certs/*.pem
-certs/*.key
+*.key
+*.cert
+*.pem
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
