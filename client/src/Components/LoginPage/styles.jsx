@@ -16,7 +16,7 @@ export const LoginTitle = styled.h1`
   text-align: center;
 `
 
-export const LoginBox = styled.div`
+export const LoginBox = styled.form`
   font-size: 32px;
   padding: 1em;
   color: #caa753;
@@ -50,6 +50,7 @@ export const StyledTextInput = styled.input`
   color: #caa753;
   width: 100%;
   font-size: 0.75em;
+  box-sizing: border-box;
 `
 
 export const LogInButton = styled.button`

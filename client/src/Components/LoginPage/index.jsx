@@ -22,6 +22,7 @@ const LoginScreen = () => {
 
   const onSuccess = () => {
     setFadeOut(true)
+    // There is a css fade out transition, before the redirect should happen
     setTimeout(() => {
       updateLoggedIn({
         ...loggedInState,
@@ -51,14 +52,16 @@ const LoginScreen = () => {
     }
   }
 
+  // Form is only used to capture the 'Enter' key
+  const onFormSubmit = (e) => {
+    e.preventDefault()
+    onClickLogIn()
+  }
+
   return (
     <Wrapper>
-      <LoginBox disappear={fadeOut}>
+      <LoginBox disappear={fadeOut} onSubmit={onFormSubmit}>
         <LoginTitle>Thief's Gambit</LoginTitle>
-        <form onSubmit={(e) => {
-          e.preventDefault()
-          onClickLogIn()
-        }}>
         <InputContainer>
           <InputLabel htmlFor='email'>Email</InputLabel>
           <StyledTextInput id='email' type='text' value={email} name='email' placeholder='Email' onChange={(e) => setEmail(e.target.value.toLowerCase())} />
@@ -76,11 +79,8 @@ const LoginScreen = () => {
         }
 
         <InputContainer center>
-          
             <LogInButton onClick={onClickLogIn} disabled={tryingToSignIn}>LOG IN</LogInButton>
-          
         </InputContainer>
-        </form>
       </LoginBox>
     </Wrapper>
   )

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useLayoutEffect } from 'react'
+import { useRef, useState, useLayoutEffect } from 'react'
 import SidebarHeader from '../../SidebarHeader'
 import { chatsToJsx } from './utils'
 import { socketConnection } from '../../../context/socket'
