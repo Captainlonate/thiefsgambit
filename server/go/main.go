@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"math/rand"
+	"os"
 	db "slotsserver/database"
 	"slotsserver/routes"
 	"time"
@@ -23,7 +24,7 @@ func main() {
 	file to be accessible with os.Getenv("ENV_NAME")
 */
 func LoadEnvironmentFile() {
-	err := godotenv.Load("prod.env")
+	err := godotenv.Load(".env")
 
 	if err != nil {
 		log.Fatalf("Error loading .env file")
@@ -36,7 +37,11 @@ func LoadEnvironmentFile() {
 func StartFiber() {
 	app := SetUpFiber()
 	SetUpRoutes(app)
-	log.Fatal(app.Listen(":3001"))
+	if os.Getenv("RUN_ENVIRONMENT") == "development" {
+		log.Fatal(app.Listen(":3001"))
+	} else {
+		log.Fatal(app.ListenTLS(":3001", "./certs/ssl.cert", "./certs/ssl.key"))
+	}
 }
 
 /*

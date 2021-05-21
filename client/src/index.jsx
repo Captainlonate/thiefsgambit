@@ -1,4 +1,3 @@
-// React App
 import React from 'react'
 import ReactDOM from 'react-dom'
 import './index.css'
@@ -12,11 +11,3 @@ ReactDOM.render(
   </React.StrictMode>,
   mountNode
 )
-
-// Game
-// import './index.css'
-// import App from './SlotsGame/App'
-// const mountNode = document.getElementById('root')
-// if (mountNode) {
-//   new App(mountNode)
-// }

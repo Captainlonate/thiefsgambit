@@ -16,10 +16,7 @@ import {
 
 const handleMessageSubmit = (chatRoomId, typedText, setTypedText) => () => {
   const trimmed = typedText.trim()
-  if (trimmed.length === 0) {
-    console.log('Message is empty')
-  } else {
-    console.log('Submitting....', trimmed)
+  if (trimmed.length !== 0) {
     // Submit to server
     socketConnection.emit('new_chat_message', {
       chatRoomId,

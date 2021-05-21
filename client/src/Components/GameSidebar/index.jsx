@@ -33,7 +33,6 @@ const GameSidebar = ({ onToggleOpen }) => {
     
     // Listen for new chat messages and add them to the room
     socketConnection.on('chat_room_message', (newChatMessage) => {
-      console.log('Received a new chat message', newChatMessage)
       setChatContext({ type: 'ADD_CHAT_MESSAGE', payload: newChatMessage })
     })
     // eslint-disable-next-line

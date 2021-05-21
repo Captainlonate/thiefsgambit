@@ -24,7 +24,11 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "standard"
+    "lint": "standard",
+    "clear-s3": "aws --profile captain s3 rm s3://slots.pirated.technology --recursive",
+    "upload-s3": "aws --profile captain s3 cp ./build/ s3://slots.pirated.technology --recursive",
+    "create-invalidation": "aws cloudfront --profile captain create-invalidation --distribution-id E195O6YVV8VP0K --paths \"/*\"",
+    "deploy": "npm run build && npm run clear-s3 && npm run upload-s3 && npm run create-invalidation"
   },
   "eslintConfig": {
     "extends": [

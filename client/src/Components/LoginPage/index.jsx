@@ -13,7 +13,7 @@ import {
 } from './styles'
 
 const LoginScreen = () => {
-  const { loggedIn, updateLoggedIn } = useContext(AuthContext)
+  const { loggedInState, updateLoggedIn } = useContext(AuthContext)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fadeOut, setFadeOut] = useState(false)
@@ -24,9 +24,10 @@ const LoginScreen = () => {
     setFadeOut(true)
     setTimeout(() => {
       updateLoggedIn({
-        ...loggedIn,
+        ...loggedInState,
         isLoggedIn: true,
-        loading: false
+        loading: false,
+        errorMessage: '',
       })
     }, 2000)
   }
@@ -54,7 +55,10 @@ const LoginScreen = () => {
     <Wrapper>
       <LoginBox disappear={fadeOut}>
         <LoginTitle>Thief's Gambit</LoginTitle>
-
+        <form onSubmit={(e) => {
+          e.preventDefault()
+          onClickLogIn()
+        }}>
         <InputContainer>
           <InputLabel htmlFor='email'>Email</InputLabel>
           <StyledTextInput id='email' type='text' value={email} name='email' placeholder='Email' onChange={(e) => setEmail(e.target.value.toLowerCase())} />
@@ -72,8 +76,11 @@ const LoginScreen = () => {
         }
 
         <InputContainer center>
-          <LogInButton onClick={onClickLogIn} disabled={tryingToSignIn}>LOG IN</LogInButton>
+          
+            <LogInButton onClick={onClickLogIn} disabled={tryingToSignIn}>LOG IN</LogInButton>
+          
         </InputContainer>
+        </form>
       </LoginBox>
     </Wrapper>
   )

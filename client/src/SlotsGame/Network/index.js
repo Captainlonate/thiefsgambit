@@ -37,7 +37,6 @@ class NetworkManager {
       })
         .then((json) => json.json())
         .then(({ success, error, data }) => {
-          console.log('/spin server response', { success, error, data })
           if (success) {
             const results = {
               spinResults: data.reels,

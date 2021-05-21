@@ -10,7 +10,6 @@ const UnAuthenticatedRoutes = () => {
   return (
     <Router>
       <Switch>
-        {/* TODO: Add a route for SignUp */}
         <Route path="/login">
           <LoginPage />
         </Route>

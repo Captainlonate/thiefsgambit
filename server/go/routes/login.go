@@ -73,6 +73,8 @@ func HandleLogin(c *fiber.Ctx) error {
 		Value:    signedToken,
 		Expires:  expiresTime,
 		HTTPOnly: true,
+		Secure:   true,
+		SameSite: "None",
 	})
 
 	return c.JSON(ApiResponse{
