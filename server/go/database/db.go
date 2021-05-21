@@ -11,7 +11,7 @@ import (
 
 var DBConn *gorm.DB
 
-const baseDSN = "host=%s user=%s password=%s dbname=%s port=5433 sslmode=disable TimeZone=America/New_York"
+const baseDSN = "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/New_York"
 
 func ConnectToDB() {
 	var err error
@@ -20,8 +20,9 @@ func ConnectToDB() {
 	user := os.Getenv("DB_USER")
 	pass := os.Getenv("DB_PASS")
 	dbname := os.Getenv("DB_NAME")
+	dbport := os.Getenv("DB_PORT")
 
-	dataSourceName := fmt.Sprintf(baseDSN, url, user, pass, dbname)
+	dataSourceName := fmt.Sprintf(baseDSN, url, user, pass, dbname, dbport)
 
 	DBConn, err = gorm.Open(postgres.Open(dataSourceName), &gorm.Config{})
 
