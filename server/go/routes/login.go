@@ -28,8 +28,6 @@ func HandleLogin(c *fiber.Ctx) error {
 		return c.JSON(err)
 	}
 
-	fmt.Printf("Passed in login credentials:\n\t%+v\n", credentials)
-
 	// Make sure they passed in something for the requried fields
 	if credentials.Email == "" || credentials.Password == "" {
 		fmt.Printf("HandleLogin error: Credentials are wrong or missing. %+v \n", credentials)
@@ -49,8 +47,6 @@ func HandleLogin(c *fiber.Ctx) error {
 		ExpireJWTCookie(c)
 		return c.JSON(queryError)
 	}
-
-	fmt.Printf("User:\n\t%+v\n", dbUser)
 
 	// Create a signed JWT token
 	expiresTime := time.Now().Add(time.Hour * 24)
