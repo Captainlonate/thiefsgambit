@@ -4,7 +4,7 @@
   "description": "Thiefs Gambit Node API",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node app"
   },
   "author": "captainlonate@gmail.com",
   "license": "ISC",

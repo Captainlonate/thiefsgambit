@@ -12,7 +12,7 @@ const { makeFailedResponse } = require('../controllers/responseUtils')
   If the JWT is valid, the payload will be attached to res.locals{}.
 */
 const JWTMiddleware = (req, res, next) => {
-  const accessToken = req.cookies.jwt
+  const accessToken = req?.cookies?.jwt
 
   if (!accessToken) {
     console.log('NO ACCESS TOKEN')
