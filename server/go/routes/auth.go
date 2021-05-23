@@ -42,7 +42,6 @@ func ProtectRouteMiddleware(c *fiber.Ctx) error {
 	claims, ok := token.Claims.(*TokenClaims)
 
 	if ok && token.Valid {
-		fmt.Printf("\nAuth: Claims:\n\t%+v\n", claims)
 		c.Locals("userid", claims.Uuid)
 		c.Locals("username", claims.Username)
 		c.Locals("iselite", claims.IsElite)

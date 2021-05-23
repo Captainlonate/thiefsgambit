@@ -115,8 +115,6 @@ func spinGetDesiredBet(c *fiber.Ctx) (int, *ApiResponse) {
 		return 0, apiResponse
 	}
 
-	log.Printf("HandleSpin:: SpinInputModel:\n\t%+v\n\n", spinInput)
-
 	// Are they trying to bet an unsupported amount
 	if apiResponse := spinValidateBetAmount(spinInput.Bet); apiResponse != nil {
 		return 0, apiResponse
@@ -170,8 +168,6 @@ func spinGetUserSlotsData(c *fiber.Ctx) (*db.SlotsData, *ApiResponse) {
 		)
 		return nil, &apiResponse
 	}
-
-	log.Printf("HandleSpin::Got SlotsData from DB:\n\t%+v\n\n", slotsData)
 
 	return slotsData, nil
 }

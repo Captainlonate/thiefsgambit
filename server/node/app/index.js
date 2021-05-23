@@ -31,11 +31,13 @@ app.use(cookieParser())
 app.use('/chats', chatRoutes)
 
 // Set up SocketIO
-// const server = http.createServer(app)
-const server = https.createServer({
-  key: fs.readFileSync('certs/ssl.key'),
-  cert: fs.readFileSync('certs/ssl.cert')
-}, app)
+const server = (process.env.NODE_ENV === 'production')
+  ? https.createServer({
+      key: fs.readFileSync('app/certs/ssl.key'),
+      cert: fs.readFileSync('app/certs/ssl.cert')
+    }, app)
+  : http.createServer(app)
+
 const io = new Server(server, {
   cors: {
     origin: ['http://localhost:3000', 'https://slots.pirated.technology'],
