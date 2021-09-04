@@ -10,6 +10,7 @@ const chatRoutes = require('./routes/chat')
 // SocketIO Dependencies - middleware, utils and handlers
 const http = require('http')
 const https = require('https')
+const fs = require('fs')
 const { Server } = require('socket.io')
 const { socketIOJWTMiddleware } = require('./socketIOHandlers/jwtMiddleware')
 const { parseJWTSocketIO } = require('./socketIOHandlers/handlerUtils')
@@ -30,20 +31,16 @@ app.use(cookieParser())
 app.use('/chats', chatRoutes)
 
 // Set up SocketIO
-const server = (process.env.ENVIRONMENT === 'dev')
-  ? http.createServer(app)
-  : https.createServer({
-    key: fs.readFileSync('app/certs/ssl.key'),
-    cert: fs.readFileSync('app/certs/ssl.cert'),
-  }, app)
-// const server = http.createServer(app)
-// const server = https.createServer({
-//   key: fs.readFileSync('app/certs/ssl.key'),
-//   cert: fs.readFileSync('app/certs/ssl.cert'),
-// }, app)
+const server = (process.env.NODE_ENV === 'production')
+  ? https.createServer({
+      key: fs.readFileSync('app/certs/ssl.key'),
+      cert: fs.readFileSync('app/certs/ssl.cert')
+    }, app)
+  : http.createServer(app)
+
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000'],
+    origin: ['http://localhost:3000', 'https://slots.pirated.technology'],
     credentials: true
   }
 })

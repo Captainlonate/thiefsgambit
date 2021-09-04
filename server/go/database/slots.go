@@ -28,8 +28,6 @@ func SaveSlotsData(newSlotsData *SlotsData) error {
 		FreeSpins: newSlotsData.FreeSpins,
 	}
 
-	log.Printf("Going to update with\n\t%+v\n", updateObj)
-
 	updateError := DBConn.Model(&newSlotsData).Select("coins", "free_spins").Updates(updateObj).Error
 
 	if updateError != nil {
