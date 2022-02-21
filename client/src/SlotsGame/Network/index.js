@@ -26,14 +26,14 @@ class NetworkManager {
   //   return { authorized: false, data: undefined }
   // }
 
-  async requestSpin (bet) {
+  async requestSpin ({ betMultiplier = 1 }) {
     return new Promise((resolve, reject) => {
       fetch(process.env.REACT_APP_URL_SPIN, {
         // Allows client to send the HttpOnly cookie
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ bet })
+        body: JSON.stringify({ bet: betMultiplier })
       })
         .then((json) => json.json())
         .then(({ success, error, data }) => {

@@ -56,5 +56,5 @@ io.on('connection', (socket) => {
 // Start express
 const EXPRESS_PORT = 3002
 server.listen(EXPRESS_PORT, () => {
-  console.log(`Example app listening at http://localhost:${EXPRESS_PORT}`)
+  console.log(`Gambit Chat App listening at http://localhost:${EXPRESS_PORT} running in ${process.env.NODE_ENV} environment.`)
 })

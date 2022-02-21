@@ -1,0 +1,44 @@
+version: '3.1'
+
+services:
+
+  gambit_postgres_db:
+    image: postgres
+    container_name: gambit_postgres_db
+    volumes:
+      - gambit_db:/var/lib/postgresql/data
+    restart: always
+    ports:
+      - "5433:5432"
+    env_file:
+      - "${SECLOC}"
+    networks:
+      - gambit_network
+  
+  gambit_golang_api:
+    image: gambit_api_image
+    container_name: gambit_golang_api
+    restart: on-failure
+    depends_on:
+      - gambit_postgres_db
+    ports:
+      - "3001:3001"
+    networks:
+      - gambit_network
+
+  gambit_chat_api:
+    image: gambit_chat_image
+    container_name: gambit_chat_api
+    restart: always
+    depends_on:
+      - gambit_postgres_db
+    ports:
+      - "3002:3002"
+    networks:
+      - gambit_network
+
+volumes:
+  gambit_db:
+
+networks:
+  gambit_network:

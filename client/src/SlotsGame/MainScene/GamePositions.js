@@ -7,6 +7,7 @@ export const getDefaultGamePositions = () => (
     totalTextCoords: makeXYCoord(),
     betTextCoords: makeXYCoord(),
     winningsTextCoords: makeXYCoord(),
-    pieceYCoords: []
+    pieceYCoords: [],
+    pieceCenterCoords: []
   })
 )

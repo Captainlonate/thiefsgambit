@@ -1,15 +1,17 @@
 import * as PIXI from 'pixi.js'
 import { getTextureByServerKey } from '../Config/thingsToLoad'
 import SpinButton from '../GameComponents/SpinButton'
+import Payline from '../GameComponents/Payline'
 import ReelContainer from '../GameComponents/ReelContainer'
 import Reel from '../GameComponents/Reel'
 import Piece from '../GameComponents/Piece'
 import NetworkManager from '../Network'
 import GameState from '../GameState'
-import { decFontSize } from '../../utils'
+import { decFontSize, arrayIsNotEmpty } from '../../utils'
 import { baseMoneyStyles } from '../Config/ui'
 import { getDefaultGameSizes } from './GameSizes'
 import { getDefaultGamePositions } from './GamePositions'
+import { GAME_MODES } from '../GameState/GameModes'
 
 /*
 
@@ -63,6 +65,10 @@ class MainScene {
 
     this.network = new NetworkManager()
     this.gameState = new GameState()
+    this.gameState.setGameMode(GAME_MODES.LOADING)
+
+    // TODO: Remove this eventually
+    window.gameDebugger = this;
 
     // Sizes and Positions
     const { logicalWidth, logicalHeight } = sizes
@@ -71,8 +77,8 @@ class MainScene {
     this.sizes = this.getSizes({ logicalWidth })
     this.positions = this.getPositions()
 
-    this.logger.debug(this.sizes)
     this.logger.debug({
+      sizes: this.sizes,
       width: this.logicalWidth,
       height: this.logicalHeight
     })
@@ -103,7 +109,15 @@ class MainScene {
     this.winningsUI = this.createWinningsText()
     this.container.addChild(this.totalUI, this.betUI, this.winningsUI)
 
+    // Paylines
+    this.paylineGraphics = this.createPaylines()
+    this.paylineGraphics.updatePayline()
+    this.container.addChild(this.paylineGraphics)
+    // setInterval() timer id
+    this.paylineTimer = null
+
     this.pixiApp.ticker.add(() => this.spinAnimation())
+    // this.pixiApp.ticker.add(() => this.paylineAnimation())
 
     //
     this.initialize()
@@ -122,10 +136,10 @@ class MainScene {
     this.network
       .getCurrentState()
       .then(({ bet, total }) => {
-        this.logger.debug('Got the initial state', { bet, total })
+        this.logger.debug('initialize::Got the initial state from api:', { bet, total })
         this.gameState.total = total
         this.gameState.bet = bet
-        this.refreshUI()
+        this.refreshUIText()
         this.start()
       })
       .catch((err) => {
@@ -134,10 +148,12 @@ class MainScene {
   }
 
   start () {
-    this.gameState.canSpin = true
+    // TODO: SET THE INITIAL GAME MOODE
+    // this.gameState.canSpin = true
+    this.gameState.setGameMode(GAME_MODES.READY)
   }
 
-  refreshUI () {
+  refreshUIText () {
     const newTotalText = this.gameState.totalText
     this.totalUI.text = newTotalText
     this.totalUI.style.fontSize = decFontSize(baseMoneyStyles.fontSize, 4, 4, newTotalText)
@@ -149,26 +165,54 @@ class MainScene {
     Invoked when the player wants to spin
   */
   spin () {
-    if (this.gameState.canSpin && !this.spinning) {
-      this.spinning = true
+    // if (this.gameState.canSpin && !this.spinning) {
+    if (this.gameState.canSpin && !this.gameState.spinning) {
+      // this.spinning = true
+      this.gameState.setGameMode(GAME_MODES.SPINNING)
       setTimeout(() => {
         this.network
-          .requestSpin(1)
-          .then(({ newTotal, spinResults, spinValue }) => {
-            this.logger.debug('The Returned Network Data', { newTotal, spinResults, spinValue })
-            this.gameState.total = newTotal
-            this.gameState.lastWinnings = spinValue
-            this.refreshUI()
-            this.stopSpinning(spinResults)
+          .requestSpin({ betMultiplier: 1 })
+          .then((spinApiResponse) => {
+            this.handleSpinResults(spinApiResponse)
           })
           .catch((err) => {
             this.logger.error('Network Error!!!', err)
+            // TODO: Probably should handle error
+            // this.gameState.setGameMode(GAME_MODES.ERROR)
+            this.gameState.setGameMode(GAME_MODES.READY)
           })
-          .finally(() => {
-            this.spinning = false
-          })
+          // .finally(() => {
+          //   this.spinning = false
+          // })
       }, 2000)
     }
+  }
+
+  /*
+
+  */
+  handleSpinResults (spinApiResponse) {
+    const { newTotal, spinResults, spinValue, paylines } = spinApiResponse
+    this.logger.debug('spin::The Returned Network Data', { newTotal, spinResults, spinValue, paylines })
+    // UI Text
+    this.gameState.total = newTotal
+    this.gameState.lastWinnings = spinValue
+    this.refreshUIText()
+    // Game State
+    if (arrayIsNotEmpty(paylines)) {
+      // const coordinates = paylines[0].map((rowIdx, reelIdx) => (
+      //   this.positions.pieceCenterCoords[reelIdx][rowIdx + 2]
+      // ))
+      // this.paylineGraphics.updatePayline(coordinates)
+      this.gameState.paylines.setPaylines({ paylines })
+      this.gameState.setGameMode(GAME_MODES.SHOWING_PAYLINES)
+      this.timerIncrementPayline()
+    } else {
+      this.paylineGraphics.clearPayline()
+      this.gameState.setGameMode(GAME_MODES.READY)
+    }
+    // Reel
+    this.setReels(spinResults)
   }
 
   /*
@@ -176,7 +220,7 @@ class MainScene {
   */
   spinAnimation () {
     const speed = 10
-    if (this.spinning) {
+    if (this.gameState.spinning) {
       const boundaryY = (this.reels[0].pieces.length - 2) * this.sizes.reelRowHeight
       for (let reelIdx = 0; reelIdx < this.reels.length; reelIdx++) {
         const pieces = this.reels[reelIdx].pieces
@@ -194,8 +238,30 @@ class MainScene {
   /*
 
   */
-  stopSpinning (results) {
-    this.spinning = false
+  paylineAnimation () {
+
+  }
+
+  /*
+
+  */
+  timerIncrementPayline () {
+    if (this.gameState.paylines.hasPaylines) {
+      const coordinates = this.gameState.paylines.currentlyShown.map((rowIdx, reelIdx) => (
+        this.positions.pieceCenterCoords[reelIdx][rowIdx + 2]
+      ))
+
+      this.paylineGraphics.updatePayline(coordinates)
+      this.gameState.paylines.nextPayline()
+    }
+  }
+
+  /*
+
+  */
+  setReels (newReels) {
+    // this.spinning = false
+    // this.gameState.spinning = false
 
     // Put the reels back in their original positions
     // And update the images to be what the server decided
@@ -205,10 +271,10 @@ class MainScene {
         pieces[pieceIdx].y = this.positions.pieceYCoords[pieceIdx]
         if (pieceIdx >= pieces.length - 3) {
           const offsetIdx = pieceIdx - (pieces.length - 3)
-          const serverKey = results[reelIdx][offsetIdx]
-          const forcedTexture = getTextureByServerKey(this.resources, serverKey)
-          if (forcedTexture) {
-            pieces[pieceIdx].texture = forcedTexture
+          const serverKey = newReels[reelIdx][offsetIdx]
+          const textureSetByApi = getTextureByServerKey(this.resources, serverKey)
+          if (textureSetByApi) {
+            pieces[pieceIdx].texture = textureSetByApi
           } else {
             this.logger.error(`Could not identify texture for serverKey: "${serverKey}"`)
           }
@@ -320,6 +386,18 @@ class MainScene {
     return text
   }
 
+  createPaylines () {
+    const payline = new Payline()
+
+    // const coordinates = [0, 1, 2, 1, 0].map((rowIdx, reelIdx) => (
+    //   this.positions.pieceCenterCoords[reelIdx][rowIdx + 2]
+    // ))
+
+    // payline.updatePayline(coordinates)
+
+    return payline
+  }
+
   /*
 
   */
@@ -360,7 +438,9 @@ class MainScene {
       reelContainerWidth,
       reelContainerHeight,
       reelRowHeight,
-      pieceMargin
+      pieceMargin,
+      reelWidth,
+      reelSpaceWidth,
     } = this.sizes
     const positions = getDefaultGamePositions()
 
@@ -382,7 +462,24 @@ class MainScene {
       2 * reelRowHeight + pieceMargin
     ]
 
+    const centerOffsetX = positions.reelContainer.x + Math.floor(reelWidth / 2)
+    const centerOffsetY = positions.reelContainer.y + Math.floor(reelRowHeight / 2)
+    positions.pieceCenterCoords = [0, 1, 2, 3, 4].map((reelIdx) => (
+      [-2, -1, 0, 1, 2].map((rowIdx) => (
+        [
+          // x
+          positions.reelContainer.x + (reelIdx * reelWidth) + (reelIdx * reelSpaceWidth) + Math.floor(reelWidth / 2),
+          // y
+          positions.reelContainer.y + (rowIdx * reelRowHeight) + Math.floor(reelRowHeight / 2),
+        ]
+      ))
+    ))
+
     return positions
+  }
+
+  getPieceCenterCoords (reelIdx, rowIdx) {
+    return [200, 200]
   }
 }
 
