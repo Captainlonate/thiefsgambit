@@ -106,16 +106,20 @@ class MainScene {
     this.container.addChild(this.totalUI, this.betUI, this.winningsUI)
 
     // Paylines
-    this.paylineGraphics = this.createPaylines()
-    this.container.addChild(this.paylineGraphics)
+    this.container.addChild(this.gameState.paylines.lineGraphic)
     this.paylineTimer = null
 
+    // Animations (tickers)
     this.pixiApp.ticker.add(() => this.spinAnimation())
 
     //
     this.initialize()
   }
 
+  /*
+    Fetch the initial state of the game (such as total money, bet
+      amount)
+  */
   initialize () {
     this.network
       .getCurrentState()
@@ -130,15 +134,22 @@ class MainScene {
       })
   }
 
+  /*
+    Set the game state to be ready to play, allowing the user to
+    interact with the game, such as spinning.
+  */
   start () {
     this.gameState.setGameMode(GAME_MODES.READY)
   }
 
   refreshUIText () {
+    // Total money text
     const newTotalText = this.gameState.totalText
     this.totalUI.text = newTotalText
     this.totalUI.style.fontSize = decFontSize(baseMoneyStyles.fontSize, 4, 4, newTotalText)
+    // Bet amount text
     this.betUI.text = 'Bet ' + this.gameState.betText
+    // Recent-spin winnings text
     this.winningsUI.text = 'Win ' + this.gameState.lastWinnings
   }
 
@@ -147,9 +158,13 @@ class MainScene {
   */
   spin () {
     if (this.gameState.canSpin && !this.gameState.spinning) {
-      this.gameState.setGameMode(GAME_MODES.SPINNING)
-      this.paylineGraphics.clearPayline()
+      // Cleanup before we spin
+      this.gameState.paylines.clearPaylines()
       window.clearInterval(this.paylineTimer)
+      this.stopGlowingAllPieces()
+      // Show spinning animation
+      this.gameState.setGameMode(GAME_MODES.SPINNING)
+      // Fetch spin results after some delay
       setTimeout(() => {
         this.network
           .requestSpin({ betMultiplier: 1 })
@@ -170,23 +185,36 @@ class MainScene {
 
   */
   handleSpinResults (spinApiResponse) {
-    const { newTotal, spinResults, spinValue, paylines } = spinApiResponse
     this.logger.debug('spin::The Returned Network Data', spinApiResponse)
+    const { newTotal, spinResults, spinValue, paylines } = spinApiResponse
     // UI Text
     this.gameState.total = newTotal
     this.gameState.lastWinnings = spinValue
     this.refreshUIText()
-    // Game State
+    // Paylines
     if (arrayIsNotEmpty(paylines)) {
-      this.gameState.paylines.setPaylines({ paylines })
-      this.gameState.setGameMode(GAME_MODES.SHOWING_PAYLINES)
-      this.timerIncrementPayline()
+      // Pre-calculate the coordinates of every payline
+      const coordinatesOfAllPaylines = paylines.map((payline) => (
+        payline.map((rowIdx, reelIdx) => (
+          this.positions.pieceCenterCoords[reelIdx][rowIdx + 2]
+        ))
+      ))
+      // Store this spin's payline information in gamestate
+      this.gameState.paylines.updatePaylines({
+        rowIndices: paylines, // [0, 1, 2, 1, 0]
+        coordinates: coordinatesOfAllPaylines // [{ x: 11, y: 12 }, ...]
+      })
+      // Make the pieces glow
+      this.gameState.paylines.currentPayline.forEach((base3RowIndex, reelIdx) => {
+        this.reels[reelIdx].pieces[base3RowIndex + 2].isGlowing = true
+      })
+      // If there are multiple paylines, start a timer to cycle through them
       if (paylines.length > 1) {
         this.paylineTimer = setInterval(() => {
-          this.logger.debug("Show the next payline.")
           this.timerIncrementPayline()
         }, 2000)
       }
+      this.gameState.setGameMode(GAME_MODES.SHOWING_PAYLINES)
     } else {
       this.gameState.paylines.clearPaylines()
       this.gameState.setGameMode(GAME_MODES.READY)
@@ -220,12 +248,11 @@ class MainScene {
   */
   timerIncrementPayline () {
     if (this.gameState.paylines.hasPaylines) {
-      const coordinates = this.gameState.paylines.currentlyShown.map((rowIdx, reelIdx) => (
-        this.positions.pieceCenterCoords[reelIdx][rowIdx + 2]
-      ))
-
-      this.paylineGraphics.updatePayline(coordinates)
+      this.stopGlowingAllPieces()
       this.gameState.paylines.nextPayline()
+      this.gameState.paylines.currentPayline.forEach((base3RowIndex, reelIdx) => {
+        this.reels[reelIdx].pieces[base3RowIndex + 2].isGlowing = true
+      })
     }
   }
 
@@ -249,6 +276,33 @@ class MainScene {
             this.logger.error(`Could not identify texture for serverKey: "${serverKey}"`)
           }
         }
+      }
+    }
+  }
+
+  /*
+
+  */
+  stopGlowingAllPieces () {
+    for (const reelPiece of this.reelPiecesIterable()) {
+      reelPiece.isGlowing = false
+    }
+  }
+
+  /*
+    To perform an action on each reel piece:
+      for (const piece of this.reelPiecesIterable()) { ... }
+    Invoke the reelPiecesIterable() generator function to return
+    an "iterator" object (which has a .next(), which returns an object with
+    "value" and "done")
+  */
+  * reelPiecesIterable () {
+    // For each reel
+    for (let reelIdx = 0; reelIdx < this.reels.length; reelIdx++) {
+      // For each piece within each reel
+      const pieces = this.reels[reelIdx].pieces
+      for (let rowIdx = 0; rowIdx < pieces.length; rowIdx++) {
+        yield pieces[rowIdx]
       }
     }
   }
@@ -354,10 +408,6 @@ class MainScene {
     text.y = this.positions.winningsTextCoords.y
     text.anchor.set(0.5)
     return text
-  }
-
-  createPaylines () {
-    return new PaylineGraphic()
   }
 
   /*

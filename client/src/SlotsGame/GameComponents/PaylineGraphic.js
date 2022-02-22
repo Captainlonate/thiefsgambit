@@ -48,7 +48,10 @@ class PaylineGraphic extends PIXI.Graphics {
     this.clear().lineStyle(PAYLINE_LINESTYLE);
   }
 
-  updatePayline (newVertices) {
+  /*
+    newVertices = [{ x: 11, y: 12 }, ...]
+  */
+  redrawLineSegments (newVertices) {
     this.clearPayline()
 
     if (arrayIsNotEmpty(newVertices)) {
