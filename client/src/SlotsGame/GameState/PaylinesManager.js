@@ -1,6 +1,6 @@
 import { arrayIsNotEmpty } from '../../utils'
 
-class Paylines {
+class PaylinesManager {
   all;
   currentlyShownIdx;
   currentlyShown;
@@ -43,4 +43,4 @@ class Paylines {
   }
 }
 
-export default Paylines
+export default PaylinesManager

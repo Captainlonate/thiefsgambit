@@ -1,14 +1,14 @@
 import { formatCommas } from '../../utils'
 import { GAME_MODES } from './GameModes'
-import Paylines from './Paylines';
+import PaylinesManager from './PaylinesManager';
 
 class GameState {
   total = 0;
   bet = 0;
   lastWinnings = 0;
   canSpin = false;
-  // mode = GAME_MODES.LOADING;
   spinning = false;
+  paylines = null;
 
   constructor () {
     this.total = 0
@@ -18,7 +18,7 @@ class GameState {
     this.canSpin = false
     this.spinning = false
 
-    this.paylines = new Paylines()
+    this.paylines = new PaylinesManager()
   }
 
   get totalText () {

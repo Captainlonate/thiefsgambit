@@ -1,7 +1,7 @@
 import * as PIXI from 'pixi.js'
 import { getTextureByServerKey } from '../Config/thingsToLoad'
 import SpinButton from '../GameComponents/SpinButton'
-import Payline from '../GameComponents/Payline'
+import PaylineGraphic from '../GameComponents/PaylineGraphic'
 import ReelContainer from '../GameComponents/ReelContainer'
 import Reel from '../GameComponents/Reel'
 import Piece from '../GameComponents/Piece'
@@ -55,6 +55,8 @@ class MainScene {
   spinning = false;
   // new Logger()
   logger = null;
+  // setInterval timer id
+  paylineTimer = null;
 
   constructor ({ pixiApp, logger, sizes }) {
     // PIXI Aliases
@@ -76,12 +78,6 @@ class MainScene {
     this.logicalHeight = logicalHeight
     this.sizes = this.getSizes({ logicalWidth })
     this.positions = this.getPositions()
-
-    this.logger.debug({
-      sizes: this.sizes,
-      width: this.logicalWidth,
-      height: this.logicalHeight
-    })
 
     // Contains the entire game
     this.container = new PIXI.Container()
@@ -111,32 +107,19 @@ class MainScene {
 
     // Paylines
     this.paylineGraphics = this.createPaylines()
-    this.paylineGraphics.updatePayline()
     this.container.addChild(this.paylineGraphics)
-    // setInterval() timer id
     this.paylineTimer = null
 
     this.pixiApp.ticker.add(() => this.spinAnimation())
-    // this.pixiApp.ticker.add(() => this.paylineAnimation())
 
     //
     this.initialize()
-  }
-
-  /*
-    Since ES6 Class fields are still experimental, standardjs does
-    not support them. So instead, this function will list out all
-    class fields in one place, so that it's easy to see what's available.
-  */
-  initializeClassProperties () {
-
   }
 
   initialize () {
     this.network
       .getCurrentState()
       .then(({ bet, total }) => {
-        this.logger.debug('initialize::Got the initial state from api:', { bet, total })
         this.gameState.total = total
         this.gameState.bet = bet
         this.refreshUIText()
@@ -148,8 +131,6 @@ class MainScene {
   }
 
   start () {
-    // TODO: SET THE INITIAL GAME MOODE
-    // this.gameState.canSpin = true
     this.gameState.setGameMode(GAME_MODES.READY)
   }
 
@@ -165,10 +146,10 @@ class MainScene {
     Invoked when the player wants to spin
   */
   spin () {
-    // if (this.gameState.canSpin && !this.spinning) {
     if (this.gameState.canSpin && !this.gameState.spinning) {
-      // this.spinning = true
       this.gameState.setGameMode(GAME_MODES.SPINNING)
+      this.paylineGraphics.clearPayline()
+      window.clearInterval(this.paylineTimer)
       setTimeout(() => {
         this.network
           .requestSpin({ betMultiplier: 1 })
@@ -181,9 +162,6 @@ class MainScene {
             // this.gameState.setGameMode(GAME_MODES.ERROR)
             this.gameState.setGameMode(GAME_MODES.READY)
           })
-          // .finally(() => {
-          //   this.spinning = false
-          // })
       }, 2000)
     }
   }
@@ -193,22 +171,24 @@ class MainScene {
   */
   handleSpinResults (spinApiResponse) {
     const { newTotal, spinResults, spinValue, paylines } = spinApiResponse
-    this.logger.debug('spin::The Returned Network Data', { newTotal, spinResults, spinValue, paylines })
+    this.logger.debug('spin::The Returned Network Data', spinApiResponse)
     // UI Text
     this.gameState.total = newTotal
     this.gameState.lastWinnings = spinValue
     this.refreshUIText()
     // Game State
     if (arrayIsNotEmpty(paylines)) {
-      // const coordinates = paylines[0].map((rowIdx, reelIdx) => (
-      //   this.positions.pieceCenterCoords[reelIdx][rowIdx + 2]
-      // ))
-      // this.paylineGraphics.updatePayline(coordinates)
       this.gameState.paylines.setPaylines({ paylines })
       this.gameState.setGameMode(GAME_MODES.SHOWING_PAYLINES)
       this.timerIncrementPayline()
+      if (paylines.length > 1) {
+        this.paylineTimer = setInterval(() => {
+          this.logger.debug("Show the next payline.")
+          this.timerIncrementPayline()
+        }, 2000)
+      }
     } else {
-      this.paylineGraphics.clearPayline()
+      this.gameState.paylines.clearPaylines()
       this.gameState.setGameMode(GAME_MODES.READY)
     }
     // Reel
@@ -236,14 +216,7 @@ class MainScene {
   }
 
   /*
-
-  */
-  paylineAnimation () {
-
-  }
-
-  /*
-
+  
   */
   timerIncrementPayline () {
     if (this.gameState.paylines.hasPaylines) {
@@ -260,9 +233,6 @@ class MainScene {
 
   */
   setReels (newReels) {
-    // this.spinning = false
-    // this.gameState.spinning = false
-
     // Put the reels back in their original positions
     // And update the images to be what the server decided
     for (let reelIdx = 0; reelIdx < this.reels.length; reelIdx++) {
@@ -387,15 +357,7 @@ class MainScene {
   }
 
   createPaylines () {
-    const payline = new Payline()
-
-    // const coordinates = [0, 1, 2, 1, 0].map((rowIdx, reelIdx) => (
-    //   this.positions.pieceCenterCoords[reelIdx][rowIdx + 2]
-    // ))
-
-    // payline.updatePayline(coordinates)
-
-    return payline
+    return new PaylineGraphic()
   }
 
   /*
@@ -455,25 +417,29 @@ class MainScene {
     positions.winningsTextCoords.x = Math.floor(this.logicalWidth * 0.10)
     positions.winningsTextCoords.y = Math.floor(this.logicalHeight * 0.82)
     positions.pieceYCoords = [
-      -2 * reelRowHeight + pieceMargin,
+      -2 * reelRowHeight + pieceMargin, // Not shown on screen normally
       -1 * reelRowHeight + pieceMargin,
       0 * reelRowHeight + pieceMargin,
       1 * reelRowHeight + pieceMargin,
-      2 * reelRowHeight + pieceMargin
+      2 * reelRowHeight + pieceMargin // Not shown on screen normally
     ]
 
     const centerOffsetX = positions.reelContainer.x + Math.floor(reelWidth / 2)
     const centerOffsetY = positions.reelContainer.y + Math.floor(reelRowHeight / 2)
     positions.pieceCenterCoords = [0, 1, 2, 3, 4].map((reelIdx) => (
-      [-2, -1, 0, 1, 2].map((rowIdx) => (
-        [
-          // x
-          positions.reelContainer.x + (reelIdx * reelWidth) + (reelIdx * reelSpaceWidth) + Math.floor(reelWidth / 2),
-          // y
-          positions.reelContainer.y + (rowIdx * reelRowHeight) + Math.floor(reelRowHeight / 2),
-        ]
-      ))
+      [-2, -1, 0, 1, 2].map((rowIdx) => ({
+        x: centerOffsetX + (reelIdx * reelWidth) + (reelIdx * reelSpaceWidth),
+        y: centerOffsetY + (rowIdx * reelRowHeight),
+      }))
     ))
+    // positions.pieceCenterCoords = [0, 1, 2, 3, 4].map((reelIdx) => (
+    //   [-2, -1, 0, 1, 2].map((rowIdx) => (
+    //     [
+    //       centerOffsetX + (reelIdx * reelWidth) + (reelIdx * reelSpaceWidth),
+    //       centerOffsetY + (rowIdx * reelRowHeight),
+    //     ]
+    //   ))
+    // ))
 
     return positions
   }
