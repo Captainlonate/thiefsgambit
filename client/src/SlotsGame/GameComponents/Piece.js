@@ -9,7 +9,7 @@ const PIECE_GLOW_FILTER = new GlowFilter({
   outerStrength: 2,
   innerStrength: 1,
   color: 0xeab700,
-  quality: 0.5, // 0 to 1
+  quality: 1, // 0 to 1
   hideContents: false
 })
 

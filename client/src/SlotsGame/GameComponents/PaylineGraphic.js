@@ -18,7 +18,7 @@ const PAYLINE_LINESTYLE = {
   Uses: @pixi/filter-glow
 */
 const LINE_GLOW_FILTER = new GlowFilter({
-  distance: 15,
+  distance: 9,
   outerStrength: 2,
   innerStrength: 1,
   color: 0xe8c101,
