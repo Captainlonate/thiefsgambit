@@ -3,7 +3,6 @@ import Loader from './Loader'
 import { ImagesToLoad } from './Config/thingsToLoad'
 import MainScene from './MainScene'
 import FontFaceObserver from 'fontfaceobserver'
-import Logger from './Logger'
 
 /*
 
@@ -25,10 +24,8 @@ class SlotsGame {
   logicalUnits = { width: 0, height: 0 };
   loader;
   scene = null;
-  logger
 
   constructor ({ mountAt, gameArea }) {
-    this.logger = new Logger()
 
     this.pixiApp = new PIXI.Application({
       resizeTo: mountAt,
@@ -68,7 +65,6 @@ class SlotsGame {
   setUpScene () {
     this.scene = new MainScene({
       pixiApp: this.pixiApp,
-      logger: this.logger,
       sizes: {
         logicalWidth: this.logicalUnits.width,
         logicalHeight: this.logicalUnits.height

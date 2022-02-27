@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react'
 import SlotsGame from '../../SlotsGame/SlotsGame'
 import GameSidebar from '../GameSidebar'
 import { SocketProvider, socketConnection } from '../context/socket'
+import Logger from "../../Logger"
 import {
   GamePageWrapper,
   GameAndMenuContainer,
@@ -24,7 +25,7 @@ const GamePage = () => {
   }
 
   useEffect(() => {
-    console.log('Mounting', Date.now())
+    Logger.logTime("Mounted GamePage. Must never happen again.")
     const gameApp = new SlotsGame({
       mountAt: gameMountPointRef.current
     })

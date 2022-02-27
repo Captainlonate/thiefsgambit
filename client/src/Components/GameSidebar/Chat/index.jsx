@@ -4,6 +4,7 @@ import { useChatContext } from '../../context/chat/index'
 import { socketConnection } from '../../context/socket'
 import { groupChats } from '../../context/chat/helpers'
 import { getRecentChatsForRoom } from '../../../Network/chat'
+import Logger from "../../../Logger"
 
 /*
   What to do when a user clicks on the Enter button next to a chat room.
@@ -27,7 +28,7 @@ const handleJoinChatRoom = (setChatContext, currentChatRoom) => (newChatRoom) =>
           setChatContext({ type: 'SET_CHAT_ROOM_MESSAGES', payload: chats.reverse() })
         })
         .catch((err) => {
-          console.log('Could not retrieve chat messages for room', newChatRoom, err)
+          Logger.error('Could not retrieve chat messages for room', newChatRoom, err)
         })
       //
       socketConnection.emit('join_chat_room', { chatRoomId: newChatRoom.chatRoomId })

@@ -4,6 +4,7 @@ import LoadingPage from '../LoadingPage'
 import { CheckIsLoggedIn } from '../../Network/checkIsLoggedIn'
 import AuthenticatedRoutes from './AuthenticatedRoutes'
 import UnAuthenticatedRoutes from './UnAuthenticatedRoutes'
+import Logger from "../../Logger"
 
 const Routes = () => {
   const { loggedInState, updateLoggedIn } = useContext(AuthContext)
@@ -37,7 +38,7 @@ const getInitialLogInState = async (loggedInState, updateLoggedIn) => {
       errorMessage: ''
     })
   } catch (ex) {
-    console.log('Error when checking if logged in to server.', ex)
+    Logger.error('Error when checking if logged in to server.', ex)
     updateLoggedIn({
       ...loggedInState,
       initialLoad: true,

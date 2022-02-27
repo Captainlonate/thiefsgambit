@@ -1,5 +1,6 @@
 import { TryToSignIn } from '../../Network/login'
 import { validateEmail } from '../../utils'
+import GameApi from '../../api/gameApi'
 
 /*
   Invoked when the user is ready to submit their credentials
@@ -9,6 +10,7 @@ export const SubmitCredentials = async ({ email, password, onSuccess, onFailure 
   email = email.trim().toLowerCase()
   password = password.trim()
   const verdict = await TryToSignIn({ email, password })
+  await GameApi.TryLogIn({ email, password })
   if (verdict.authorized) {
     onSuccess()
   } else {

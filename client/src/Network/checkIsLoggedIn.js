@@ -1,6 +1,6 @@
 export const CheckIsLoggedIn = async () => {
   try {
-    const response = await window.fetch(process.env.REACT_APP_URL_ISLOGGEDIN, {
+    const response = await window.fetch(`${process.env.REACT_APP_URL_GAME}/isloggedin`, {
       method: 'GET',
       credentials: 'include'
     })

@@ -28,7 +28,7 @@ class NetworkManager {
 
   async requestSpin ({ betMultiplier = 1 }) {
     return new Promise((resolve, reject) => {
-      fetch(process.env.REACT_APP_URL_SPIN, {
+      fetch(`${process.env.REACT_APP_URL_GAME}/spin`, {
         // Allows client to send the HttpOnly cookie
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

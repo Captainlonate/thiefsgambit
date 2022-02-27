@@ -12,6 +12,7 @@ import { baseMoneyStyles } from '../Config/ui'
 import { getDefaultGameSizes } from './GameSizes'
 import { getDefaultGamePositions } from './GamePositions'
 import { GAME_MODES } from '../GameState/GameModes'
+import Logger from "../../Logger"
 
 /*
 
@@ -54,7 +55,7 @@ class MainScene {
   // If the board animation is currently spinning
   spinning = false;
   // new Logger()
-  logger = null;
+  // logger = null;
   // setInterval timer id
   paylineTimer = null;
 
@@ -63,7 +64,7 @@ class MainScene {
     this.pixiApp = pixiApp
     this.loader = pixiApp.loader
     this.resources = pixiApp.loader.resources
-    this.logger = logger
+    // Logger = logger
 
     this.network = new NetworkManager()
     this.gameState = new GameState()
@@ -130,7 +131,7 @@ class MainScene {
         this.start()
       })
       .catch((err) => {
-        this.logger.error("Couldn't get initial state", err)
+        Logger.error("Couldn't get initial state", err)
       })
   }
 
@@ -172,7 +173,7 @@ class MainScene {
             this.handleSpinResults(spinApiResponse)
           })
           .catch((err) => {
-            this.logger.error('Network Error!!!', err)
+            Logger.error('Network Error!!!', err)
             // TODO: Probably should handle error
             // this.gameState.setGameMode(GAME_MODES.ERROR)
             this.gameState.setGameMode(GAME_MODES.READY)
@@ -185,7 +186,7 @@ class MainScene {
 
   */
   handleSpinResults (spinApiResponse) {
-    this.logger.debug('spin::The Returned Network Data', spinApiResponse)
+    Logger.debug('spin::The Returned Network Data', spinApiResponse)
     const { newTotal, spinResults, spinValue, paylines } = spinApiResponse
     // UI Text
     this.gameState.total = newTotal
@@ -273,7 +274,7 @@ class MainScene {
           if (textureSetByApi) {
             pieces[pieceIdx].texture = textureSetByApi
           } else {
-            this.logger.error(`Could not identify texture for serverKey: "${serverKey}"`)
+            Logger.error(`Could not identify texture for serverKey: "${serverKey}"`)
           }
         }
       }

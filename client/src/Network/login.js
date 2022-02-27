@@ -6,7 +6,7 @@ export const TryToSignIn = async ({ email, password }) => {
   }
 
   try {
-    const response = await fetch(process.env.REACT_APP_URL_LOGIN, {
+    const response = await fetch(`${process.env.REACT_APP_URL_GAME}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
