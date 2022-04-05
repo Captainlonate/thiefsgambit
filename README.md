@@ -57,6 +57,7 @@ I made the art by creating 3d things in blender, and taking 2d renders of them. 
 
 `Current progress (looks very blocky, but will look much better by the end)`
 
+<img src="./readme/payline_and_chat.png" />
 <img src="./readme/progress.png" />
 
 <table>
