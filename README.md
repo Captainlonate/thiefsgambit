@@ -55,7 +55,7 @@ Motivation: _After EA games bought POGO, they rewrote their slots game to rely o
 
 I made the art by creating 3d things in blender, and taking 2d renders of them. I drew a couple things (the ocean painting) in Krita.
 
-`Current progress (looks very blocky, but will look much better by the end)`
+`Current progress (I've got the general layout, but the models look very blocky, but will look much better by the end)`
 
 <img src="./readme/payline_and_chat.png" />
 <img src="./readme/progress.png" />
