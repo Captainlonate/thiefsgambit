@@ -1,6 +1,15 @@
 # Thief's Gambit
 
-`(WIP - Still adding features and graphics. I need a couple more weeks.)`
+`(WIP - I'm Still implementing features and creating graphics. This is very much unfinished. More of a prototype at this point.)`
+
+https://slots.pirated.technology/play
+
+__You can use this test account to sign in:__
+
+```
+Username: averagejoe@email.com
+Pass: P@ssword
+```
 
 ## Description
 
