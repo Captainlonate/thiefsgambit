@@ -1,11 +1,10 @@
 import * as PIXI from 'pixi.js'
 import { getTextureByServerKey } from '../Config/thingsToLoad'
 import SpinButton from '../GameComponents/SpinButton'
-import PaylineGraphic from '../GameComponents/PaylineGraphic'
+// import PaylineGraphic from '../GameComponents/PaylineGraphic'
 import ReelContainer from '../GameComponents/ReelContainer'
 import Reel from '../GameComponents/Reel'
 import Piece from '../GameComponents/Piece'
-import NetworkManager from '../Network'
 import GameState from '../GameState'
 import { decFontSize, arrayIsNotEmpty } from '../../utils'
 import { baseMoneyStyles } from '../Config/ui'
@@ -13,6 +12,7 @@ import { getDefaultGameSizes } from './GameSizes'
 import { getDefaultGamePositions } from './GamePositions'
 import { GAME_MODES } from '../GameState/GameModes'
 import Logger from "../../Logger"
+import { API } from "../../api"
 
 /*
 
@@ -24,8 +24,6 @@ class MainScene {
   loader = null;
   // pixiApp.loader.resources
   resources = null;
-  // new NetworkManager()
-  network = null;
   // new GameState()
   gameState = null;
   // Logical units of width
@@ -66,7 +64,6 @@ class MainScene {
     this.resources = pixiApp.loader.resources
     // Logger = logger
 
-    this.network = new NetworkManager()
     this.gameState = new GameState()
     this.gameState.setGameMode(GAME_MODES.LOADING)
 
@@ -122,16 +119,19 @@ class MainScene {
       amount)
   */
   initialize () {
-    this.network
+    API
       .getCurrentState()
-      .then(({ bet, total }) => {
-        this.gameState.total = total
-        this.gameState.bet = bet
-        this.refreshUIText()
-        this.start()
-      })
-      .catch((err) => {
-        Logger.error("Couldn't get initial state", err)
+      .then((apiResponse) => {
+        console.log("getCurrentState api response", { apiResponse })
+        if (apiResponse.isError) {
+          this.showErrorToast(apiResponse.errorMessage)
+        } else {
+          const { totalcredits, previousbet } = apiResponse.data
+          this.gameState.total = totalcredits
+          this.gameState.bet = previousbet
+          this.refreshUIText()
+          this.start()
+        }
       })
   }
 
@@ -159,7 +159,7 @@ class MainScene {
   */
   spin () {
     if (this.gameState.canSpin && !this.gameState.spinning) {
-      // Cleanup before we spin
+      // Cleanup before spinning
       this.gameState.paylines.clearPaylines()
       window.clearInterval(this.paylineTimer)
       this.stopGlowingAllPieces()
@@ -167,16 +167,23 @@ class MainScene {
       this.gameState.setGameMode(GAME_MODES.SPINNING)
       // Fetch spin results after some delay
       setTimeout(() => {
-        this.network
-          .requestSpin({ betMultiplier: 1 })
-          .then((spinApiResponse) => {
-            this.handleSpinResults(spinApiResponse)
-          })
-          .catch((err) => {
-            Logger.error('Network Error!!!', err)
-            // TODO: Probably should handle error
-            // this.gameState.setGameMode(GAME_MODES.ERROR)
-            this.gameState.setGameMode(GAME_MODES.READY)
+        API.Spin({ betMultiplier: this.gameState.bet })
+          .then((apiResponse) => {
+            if (apiResponse.isError) {
+              this.showErrorToast(`Network error when fetching results. "${apiResponse.errorMessage}"`)
+            } else {
+              try {
+                this.handleSpinResults({
+                  spinResults: apiResponse.data.reels,
+                  spinValue: apiResponse.data.value,
+                  newTotal: apiResponse.data.newtotal,
+                  paylines: apiResponse.data.paylines,
+                  freeSpins: apiResponse.data.freespins,
+                })
+              } catch (ex) {
+                this.showErrorToast('Invalid spin results from api.')
+              }
+            }
           })
       }, 2000)
     }
@@ -274,7 +281,7 @@ class MainScene {
           if (textureSetByApi) {
             pieces[pieceIdx].texture = textureSetByApi
           } else {
-            Logger.error(`Could not identify texture for serverKey: "${serverKey}"`)
+            this.showErrorToast(`Could not identify texture for serverKey: "${serverKey}"`)
           }
         }
       }
@@ -329,7 +336,7 @@ class MainScene {
       y: this.positions.reelContainer.y,
       displayWidth: this.sizes.reelContainerWidth,
       displayHeight: this.sizes.reelContainerHeight,
-      // bgColor: 0xff00ff
+      // bgColor: 0x111111
     })
   }
 
@@ -497,6 +504,10 @@ class MainScene {
 
   getPieceCenterCoords (reelIdx, rowIdx) {
     return [200, 200]
+  }
+
+  showErrorToast (errorMessage) {
+    Logger.error(errorMessage)
   }
 }
 

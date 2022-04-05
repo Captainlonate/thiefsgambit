@@ -8,32 +8,16 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type InitialStateResults struct {
-	// The user's total amount of coins
-	TotalCredits int `json:"totalcredits"`
-}
-
 /*
-	Fiber route handler for when a user requests to spin.
+	Retrieve the user's slots data from the database.
+	Determine's which user to look up, by looking for a "userid" in
+	fiber's Context.Locals.
+	If everything goes well, returns their slots data.
+	Otherwise, an ApiResponse will be returned if:
+		- There was no userid in locals.
+		- The query could not find SlotsData for that userId
+		- The query simply fails for some other reason
 */
-func HandleGetInitialState(c *fiber.Ctx) error {
-	var apiResponse *ApiResponse
-
-	// Get the user's current slots data from the database
-	slotsData, apiResponse := getUserSlotsData(c)
-	if apiResponse != nil {
-		return c.JSON(apiResponse)
-	}
-
-	return c.JSON(ApiResponse{
-		Success: true,
-		Error:   nil,
-		Data: InitialStateResults{
-			TotalCredits:  slotsData.Coins,
-		},
-	})
-}
-
 func getUserSlotsData(c *fiber.Ctx) (*db.SlotsData, *ApiResponse) {
 	var apiResponse ApiResponse
 	// If c.Locals("thing") is nil, the type assertion will return: 0, false

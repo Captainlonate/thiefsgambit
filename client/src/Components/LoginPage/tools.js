@@ -1,6 +1,5 @@
-import { TryToSignIn } from '../../Network/login'
 import { validateEmail } from '../../utils'
-import GameApi from '../../api/gameApi'
+import { API } from '../../api'
 
 /*
   Invoked when the user is ready to submit their credentials
@@ -9,12 +8,12 @@ import GameApi from '../../api/gameApi'
 export const SubmitCredentials = async ({ email, password, onSuccess, onFailure }) => {
   email = email.trim().toLowerCase()
   password = password.trim()
-  const verdict = await TryToSignIn({ email, password })
-  await GameApi.TryLogIn({ email, password })
-  if (verdict.authorized) {
+  // Make the network call to attempt to sign in
+  const verdict = await API.TryLogIn({ email, password })
+  if (verdict.isAuthorized) {
     onSuccess()
   } else {
-    onFailure(verdict.errorMessageToDisplay || '')
+    onFailure(verdict.errorMessageToDisplay || 'Unexpected error logging in.')
   }
 }
 

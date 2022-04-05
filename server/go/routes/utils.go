@@ -9,8 +9,7 @@ import (
 )
 
 /*
-	Parse the JSON POST body into a struct, containing the user's
-	login credentials.
+	Parse the JSON POST body into a struct
 */
 func ParsePostBodyOrError(c *fiber.Ctx, parseInto interface{}) *ApiResponse {
 	if len(c.Body()) == 0 {

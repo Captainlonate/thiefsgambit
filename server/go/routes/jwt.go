@@ -9,6 +9,8 @@ import (
 	jwt "github.com/form3tech-oss/jwt-go"
 )
 
+// ========================================================
+
 type TokenClaims struct {
 	Uuid     uint   `json:"uuid"`
 	Username string `json:"username"`
@@ -17,6 +19,8 @@ type TokenClaims struct {
 	Exp      int64
 	jwt.StandardClaims
 }
+
+// ========================================================
 
 func JWTKeyFunction(token *jwt.Token) (interface{}, error) {
 	return []byte(os.Getenv("JWT_SIGN_KEY")), nil

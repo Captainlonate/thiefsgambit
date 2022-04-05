@@ -61,10 +61,21 @@ func SetUpFiber() (app *fiber.App) {
 	middleware and route handlers.
 */
 func SetUpRoutes(app *fiber.App) {
-	app.Get("/isloggedin", routes.ProtectRouteMiddleware, routes.HandleJustReturnSuccess)
+	app.Get("/isloggedin", routes.ProtectRouteMiddleware, HandleJustReturnSuccess)
 	app.Post("/login", routes.HandleLogin)
 	app.Post("/logout", routes.HandleLogout)
 	app.Post("/signup", routes.HandleSignup)
 	app.Post("/spin", routes.ProtectRouteMiddleware, routes.HandleSpin)
-	app.Post("/initialstate", routes.ProtectRouteMiddleware, routes.HandleGetInitialState)
+	app.Post("/currentstate", routes.ProtectRouteMiddleware, routes.HandleGetCurrentState)
+}
+
+/*
+	One use for this is for informing the client
+	whether or not they are currently logged in.
+	Earlier middleware can reject invalid JWT's.
+	So, if the request makes it here, then they
+	must be logged in.
+*/
+func HandleJustReturnSuccess(c *fiber.Ctx) error {
+	return c.JSON(routes.ApiResponse{Success: true})
 }

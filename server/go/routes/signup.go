@@ -10,11 +10,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// ========================================================
+
 type SignUpInputModel struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+// ========================================================
 
 func (model *SignUpInputModel) TrimFields() {
 	model.Username = strings.TrimSpace(model.Username)

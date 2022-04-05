@@ -1,3 +1,9 @@
+/*
+  ###################################
+  TODO:
+    Move/Rebuild this into api/Api.js - GameAPI{}
+  ###################################
+*/
 export const CheckIsLoggedIn = async () => {
   try {
     const response = await window.fetch(`${process.env.REACT_APP_URL_GAME}/isloggedin`, {

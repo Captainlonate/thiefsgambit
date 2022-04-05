@@ -4,8 +4,10 @@ import (
 	ce "slotsserver/customError"
 )
 
+// ========================================================
+
 /*
-	All API endpoints should return this exact
+	ALL API endpoints should return this exact
 	structure with a 200 HTTP status code.
 	Success will be false if something didn't go
 		according to plan.
@@ -20,6 +22,8 @@ type ApiResponse struct {
 	Error   error       `json:"error"`
 	Data    interface{} `json:"data"`
 }
+
+// ========================================================
 
 /*
 	Convenience function for creating an ApiResponse

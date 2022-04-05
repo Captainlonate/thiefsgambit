@@ -10,10 +10,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// ========================================================
+
 type LoginInputModel struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
 }
+
+// ========================================================
 
 /*
 	Fiber route handler for when a user tries to log in.
@@ -136,15 +140,4 @@ func TryLoginOrError(loginForm *LoginInputModel) (*database.User, *ApiResponse) 
 	}
 
 	return dbUser, nil
-}
-
-/*
-	One use for this is for informing the client
-	whether or not they are currently logged in.
-	Earlier middleware can reject invalid JWT's.
-	So, if the request makes it here, then they
-	must be logged in.
-*/
-func HandleJustReturnSuccess(c *fiber.Ctx) error {
-	return c.JSON(ApiResponse{Success: true})
 }
