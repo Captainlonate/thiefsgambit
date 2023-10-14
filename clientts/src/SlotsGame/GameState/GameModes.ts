@@ -1,0 +1,15 @@
+// export const GAME_MODES = {
+//   LOADING: 'LOADING',
+//   READY: 'READY',
+//   SPINNING: 'SPINNING',
+//   SHOWING_PAYLINES: 'SHOWING_PAYLINES',
+//   ERROR: 'ERROR',
+// } as const
+
+export enum GAME_MODES {
+  LOADING = 'LOADING',
+  READY = 'READY',
+  SPINNING = 'SPINNING',
+  SHOWING_PAYLINES = 'SHOWING_PAYLINES',
+  ERROR = 'ERROR',
+}

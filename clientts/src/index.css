@@ -1,0 +1,39 @@
+/* @import "normalize.css"; */
+
+@font-face {
+  font-family: pirate_font;
+  src: url(fonts/pirate_font.ttf);
+}
+
+@font-face {
+  font-family: rapscallion_font;
+  src: url(fonts/rapscallion.ttf);
+}
+
+@font-face {
+  font-family: freebooter_shadow;
+  src: url(fonts/freebooter_shadow.ttf);
+}
+
+@font-face {
+  font-family: freebooter_updated;
+  src: url(fonts/freebooter_updated.ttf);
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+#root canvas {
+  display: block;
+}
