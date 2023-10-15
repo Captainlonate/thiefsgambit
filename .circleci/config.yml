@@ -24,6 +24,9 @@ jobs:
           name: "Print node version"
           command: "node --version"
       - run:
+          name: "Install pnpm"
+          command: "npm install -g pnpm"
+      - run:
           name: "Install node_modules with pnpm"
           command: "pnpm install"
       - run:
