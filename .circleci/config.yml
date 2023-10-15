@@ -13,16 +13,22 @@ jobs:
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     docker:
       - image: cimg/base:stable
+    working_directory: ~/thiefsgambit/clientts
     # Add steps to the job
     # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
       - checkout
       - node/install:
           node-version: '20.8.0'
-      - run: node --version
       - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+          name: "Print node version"
+          command: "node --version"
+      - run:
+          name: "Install node_modules with pnpm"
+          command: "pnpm install"
+      - run:
+          name: "Build vite app with pnpm and tsc"
+          command: "pnpm build"
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
