@@ -32,7 +32,6 @@ const GameSidebar = ({ onToggleOpen }: IGameSidebarProps) => {
 
   const fetchChatRooms = useCallback(
     async function () {
-      console.log('Fetching chat rooms')
       const apiResponse = await API.GetChatRooms()
 
       if (apiResponse.isError || !apiResponse.data) {
