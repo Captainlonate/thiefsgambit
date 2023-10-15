@@ -3,7 +3,7 @@ import Loader from './Loader'
 import { ImagesToLoad } from './Config/thingsToLoad'
 import MainScene from './MainScene'
 import FontFaceObserver from 'fontfaceobserver'
-import Logger from '../Logger'
+import Logger from '@logger'
 
 /*
 

@@ -1,16 +1,19 @@
 import { io, Socket } from 'socket.io-client'
-import { IChatMessage, IChatRoom } from '../../../api/ApiReturnDataTypes'
+import { IChatMessage, IChatRoom } from '@api/ApiReturnDataTypes'
 
 interface ServerToClientEvents {
   chat_room_message: (newChatMessage: IChatMessage) => void
 }
 
 interface ClientToServerEvents {
-  join_chat_room: ({
-    chatRoomId,
-  }: {
-    chatRoomId: IChatRoom['chatRoomId']
-  }) => void
+  /**
+   * Submit this when the user wants to join a specific chat room.
+   */
+  join_chat_room: (chatRoomId: IChatRoom['chatRoomId']) => void
+  /**
+   * Submit this when the user wants to submit a new chat message
+   * to a specific chat room.
+   */
   new_chat_message: ({
     chatRoomId,
     message,

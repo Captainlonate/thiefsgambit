@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react'
-import { AuthContext } from '../context/auth'
+import { AuthContext } from '@context/auth'
 import { SubmitCredentials, validateLoginForm } from './tools'
 import { Navigate } from 'react-router-dom'
 import {
@@ -12,7 +12,7 @@ import {
   LogInButton,
   ErrorMessages,
 } from './styles'
-import { LOGGED_IN_SUCCESSFULLY } from '../context/auth/authActions'
+import { LOGGED_IN_SUCCESSFULLY } from '@context/auth/authActions'
 
 const LoginScreen = () => {
   const { updateLoggedIn } = useContext(AuthContext)

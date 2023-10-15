@@ -1,15 +1,15 @@
 import { useContext, useEffect } from 'react'
 import LoadingPage from '../LoadingPage'
-import { AuthContext, IAuthContextValue } from '../context/auth'
+import { AuthContext, IAuthContextValue } from '@context/auth'
 import { IWithChildren } from '../../commonTypes'
-import { API } from '../../api/Api'
+import { API } from '@api/Api'
 import React from 'react'
 import {
   LOGGED_IN_SUCCESSFULLY,
   LOGIN_FAILED_NETWORK_ERROR,
   NOT_ALREADY_LOGGED_IN,
-} from '../context/auth/authActions'
-import { ERROR_CODES } from '../../api/ApiError'
+} from '@context/auth/authActions'
+import { ERROR_CODES } from '@api/ApiError'
 
 export function CheckAlreadyLoggedInBeforeRouting({ children }: IWithChildren) {
   const refHasDoneInitialCheck = React.useRef(false)

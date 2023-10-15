@@ -1,5 +1,5 @@
 import { validateEmail } from '../../utils'
-import { API } from '../../api/Api'
+import { API } from '@api/Api'
 
 interface ISubmitCredentialsArgs {
   email: string

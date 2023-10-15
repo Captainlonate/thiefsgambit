@@ -1,4 +1,4 @@
-import { IChatMessage } from '../../../api/ApiReturnDataTypes'
+import { IChatMessage } from '@api/ApiReturnDataTypes'
 
 export interface IGroupedChatsChat {
   message: string

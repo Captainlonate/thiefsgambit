@@ -1,11 +1,11 @@
 import ChatRoomChat from './ChatRoomChat'
 import ChatRoomsList from './ChatRoomsList'
-import { useChatContext } from '../../context/chat/index'
-import { socketConnection } from '../../context/socket/socketConnection'
-import { groupChats } from '../../context/chat/helpers'
-import Logger from '../../../Logger'
-import { API } from '../../../api/Api'
-import { IChatRoom } from '../../../api/ApiReturnDataTypes'
+import { useChatContext } from '@context/chat/index'
+import { socketConnection } from '@context/socket/socketConnection'
+import { groupChats } from '@context/chat/helpers'
+import Logger from '@logger'
+import { API } from '@api/Api'
+import { IChatRoom } from '@api/ApiReturnDataTypes'
 
 interface IChatSidebarProps {
   onOpenToggle: () => void
@@ -65,10 +65,7 @@ const ChatSidebar = ({ onOpenToggle }: IChatSidebarProps) => {
           })
         }
 
-        //
-        socketConnection.emit('join_chat_room', {
-          chatRoomId: newChatRoom.chatRoomId,
-        })
+        socketConnection.emit('join_chat_room', newChatRoom.chatRoomId)
       }
 
       // Change the UI from showing all chat rooms, to messages within this new room

@@ -1,5 +1,5 @@
-import { IChatRoom } from '../../../../api/ApiReturnDataTypes'
-import { useChatContext } from '../../../context/chat/index'
+import { IChatRoom } from '@api/ApiReturnDataTypes'
+import { useChatContext } from '@context/chat/index'
 import SidebarHeader from '../../SidebarHeader'
 import { ChatSidebarWrapper } from '../styles'
 import ChatRoomListing from './ChatRoomListing'

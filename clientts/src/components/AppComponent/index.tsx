@@ -1,6 +1,6 @@
-import { AuthProvider } from '../context/auth'
+import { AuthProvider } from '@context/auth'
 import { useEffect } from 'react'
-import Logger from '../../Logger'
+import Logger from '@logger'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { CheckAlreadyLoggedInBeforeRouting } from '../Routes/CheckAlreadyLoggedInBeforeRouting'
 import { AppRoutes } from '../Routes/AppRoutes'

@@ -1,7 +1,6 @@
 import * as PIXI from 'pixi.js'
 import { getTextureByServerKey } from '../Config/thingsToLoad'
 import SpinButton from '../GameComponents/SpinButton'
-// import PaylineGraphic from '../GameComponents/PaylineGraphic'
 import ReelContainer from '../GameComponents/ReelContainer'
 import Reel from '../GameComponents/Reel'
 import Piece from '../GameComponents/Piece'
@@ -15,8 +14,8 @@ import {
   getDefaultGamePositions,
 } from './GamePositions'
 import { GAME_MODES } from '../GameState/GameModes'
-import Logger from '../../Logger'
-import { API } from '../../api/Api'
+import Logger from '@logger'
+import { API } from '@api/Api'
 
 interface IMainSceneArgs {
   pixiApp: PIXI.Application

@@ -1,9 +1,9 @@
 import { useRef, useEffect, useState, useCallback } from 'react'
 import SlotsGame from '../../SlotsGame/SlotsGame'
 import GameSidebar from '../GameSidebar'
-import { SocketProvider } from '../context/socket'
-import { socketConnection } from '../context/socket/socketConnection'
-import Logger from '../../Logger'
+import { SocketProvider } from '@context/socket'
+import { socketConnection } from '@context/socket/socketConnection'
+import Logger from '@logger'
 import { GamePageWrapper, GameAndMenuContainer, GameContainer } from './styles'
 
 const GamePage = () => {

@@ -1,4 +1,4 @@
-import { IChatMessage, IChatRoom } from '../../../api/ApiReturnDataTypes'
+import { IChatMessage, IChatRoom } from '@api/ApiReturnDataTypes'
 
 export interface IChatContextState {
   chatRooms: IChatRoom[]

@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import ChatSidebar from './Chat'
 import ClosedSidebar from './ClosedSidebar'
 import { GameSidebarWrapper } from './styles'
-import { ChatProvider, useChatContext } from '../context/chat/index'
-import { socketConnection } from '../context/socket/socketConnection'
-import { API } from '../../api/Api'
-import Logger from '../../Logger'
+import { ChatProvider, useChatContext } from '@context/chat/index'
+import { API } from '@api/Api'
+import Logger from '@logger'
 
 interface IGameSidebarProps {
   onToggleOpen: (open: boolean) => void
@@ -21,8 +20,8 @@ interface IGameSidebarProps {
 */
 const GameSidebar = ({ onToggleOpen }: IGameSidebarProps) => {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [chatContext, setChatContext] = useChatContext()
-  console.log('chatContext', chatContext)
+  const [, setChatContext] = useChatContext()
+  const refIsFetchingChatRooms = useRef(false)
 
   const toggleMenuOpen = () => {
     if (typeof onToggleOpen === 'function') {
@@ -31,33 +30,35 @@ const GameSidebar = ({ onToggleOpen }: IGameSidebarProps) => {
     setMenuOpen(!menuOpen)
   }
 
-  async function fetchChatRooms() {
-    const apiResponse = await API.GetChatRooms()
+  const fetchChatRooms = useCallback(
+    async function () {
+      console.log('Fetching chat rooms')
+      const apiResponse = await API.GetChatRooms()
 
-    if (apiResponse.isError || !apiResponse.data) {
-      Logger.error(
-        "Couldn't fetch chat rooms",
-        apiResponse.errorMessage,
-        apiResponse.errorCode
-      )
-    } else {
-      setChatContext({
-        type: 'UPDATE_CHATROOMS_LIST',
-        payload: apiResponse.data,
-      })
-    }
-  }
+      if (apiResponse.isError || !apiResponse.data) {
+        Logger.error(
+          "Couldn't fetch chat rooms",
+          apiResponse.errorMessage,
+          apiResponse.errorCode
+        )
+      } else {
+        setChatContext({
+          type: 'UPDATE_CHATROOMS_LIST',
+          payload: apiResponse.data,
+        })
+      }
+      refIsFetchingChatRooms.current = false
+    },
+    [setChatContext]
+  )
 
   useEffect(() => {
-    // Retrieve the list of chatrooms and display them
-    fetchChatRooms()
-
-    // Listen for new chat messages and add them to the room
-    socketConnection.on('chat_room_message', (newChatMessage) => {
-      setChatContext({ type: 'ADD_CHAT_MESSAGE', payload: newChatMessage })
-    })
-    // eslint-disable-next-line
-  }, [])
+    if (!refIsFetchingChatRooms.current) {
+      refIsFetchingChatRooms.current = true
+      // Retrieve the list of chatrooms and display them
+      fetchChatRooms()
+    }
+  }, [fetchChatRooms, setChatContext])
 
   return (
     <GameSidebarWrapper $open={menuOpen}>

@@ -1,4 +1,4 @@
-import { IGroupOfChats, IGroupedChatsChat } from '../../../context/chat/helpers'
+import { IGroupOfChats, IGroupedChatsChat } from '@context/chat/helpers'
 import { Chat, ChatMessage, ChatMessageProfile, WordsWrapper } from './styles'
 
 // Each <Chat /> needs a unique key. The only thing I could come up with

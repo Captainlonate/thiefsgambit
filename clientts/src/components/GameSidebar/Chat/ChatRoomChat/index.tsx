@@ -1,7 +1,7 @@
 import { useRef, useState, useLayoutEffect } from 'react'
 import SidebarHeader from '../../SidebarHeader'
 import { chatsToJsx } from './utils'
-import { socketConnection } from '../../../context/socket/socketConnection'
+import { socketConnection } from '@context/socket/socketConnection'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons'
 import { ChatSidebarWrapper } from '../styles'
@@ -13,8 +13,8 @@ import {
   InputSectionRight,
   ChatMessagesBody,
 } from './styles'
-import { IChatRoom } from '../../../../api/ApiReturnDataTypes'
-import { IGroupOfChats } from '../../../context/chat/helpers'
+import { IChatRoom } from '@api/ApiReturnDataTypes'
+import { IGroupOfChats } from '@context/chat/helpers'
 
 const handleMessageSubmit =
   (
