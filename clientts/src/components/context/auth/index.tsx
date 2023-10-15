@@ -1,3 +1,4 @@
+import Logger from '@logger'
 import React, { createContext } from 'react'
 
 export interface IAuthContextValue {
@@ -31,7 +32,7 @@ const INITIAL_AUTH_STATE: Readonly<IAuthProviderState> = {
 export const AuthContext = createContext<IAuthContextValue>({
   loggedInState: INITIAL_AUTH_STATE,
   updateLoggedIn() {
-    console.warn('AuthContext updateLoggedIn() not implemented.')
+    Logger.error('AuthContext updateLoggedIn() not implemented.')
   },
 })
 
