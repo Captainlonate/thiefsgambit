@@ -28,11 +28,37 @@ jobs:
       - checkout:
           path: ~/thiefsgambit
 
+      - node/install:
+          node-version: '20.8.0'
+
       - aws-cli/setup:
           aws_access_key_id: $AWS_ACCESS_KEY_ID
           aws_secret_access_key: $AWS_SECRET_ACCESS_KEY
           region: us-east-1
 
       - run:
-          name: "Test AWS CLI"
-          command: "aws s3 ls"
+          name: "Install pnpm cli tool"
+          command: "node --version && npm install -g pnpm"
+
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run:
+          name: "Install node_modules using pnpm"
+          command: "pnpm install"
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - run:
+          name: "Build vite app with pnpm and tsc"
+          command: "pnpm build"
+
+      - run:
+          name: "Upload build to s3"
+          command: "aws s3 sync --delete ./dist s3://slots.pirated.technology"
