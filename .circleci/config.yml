@@ -8,7 +8,7 @@ orbs:
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/configuration-reference/#jobs
 jobs:
-  nathan:
+  build_and_deploy:
     # Specify the execution environment. You can specify an image from Docker Hub or use one of our convenience images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/configuration-reference/#executor-job
     docker:
@@ -17,18 +17,31 @@ jobs:
     # Add steps to the job
     # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
-      - checkout
+      - checkout:
+          path: ~/thiefsgambit
       - node/install:
           node-version: '20.8.0'
       - run:
           name: "Print node version"
           command: "node --version"
       - run:
+          name: "pwd && ls"
+          command: "pwd && ls -la"
+      - run:
           name: "Install pnpm"
           command: "npm install -g pnpm"
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
       - run:
           name: "Install node_modules with pnpm"
           command: "pnpm install"
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
       - run:
           name: "Build vite app with pnpm and tsc"
           command: "pnpm build"
@@ -36,6 +49,6 @@ jobs:
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
 workflows:
-  nathan-workflow:
+  build_and_deploy_workflow:
     jobs:
-      - nathan
+      - build_and_deploy
